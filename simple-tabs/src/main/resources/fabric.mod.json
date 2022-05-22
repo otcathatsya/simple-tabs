@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "mod_id",
+  "id": "simpletabs",
   "version": "${version}",
-  "name": "Mod Name",
-  "description": "Mod Description",
+  "name": "Simple Tabs: Fabric",
+  "description": "It does things",
   "authors": [
-    "Author"
+    "otcathatsya"
   ],
   "contact": {
     "homepage": "https://example.com/",
@@ -19,7 +19,7 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "com.mod_author.mod_id.ModName"
+        "value": "at.cath.simpletabs.SimpleTabs"
       }
     ]
   },
