@@ -13,18 +13,24 @@
     "sources": "https://example.com/"
   },
   "license": "The Unlicense",
-  "icon": "assets/mod_name/icon.png",
+  "icon": "assets/simpletabs/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
       {
         "adapter": "kotlin",
-        "value": "at.cath.simpletabs.SimpleTabs"
+        "value": "at.cath.simpletabs.TabsMod"
+      }
+    ],
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "at.cath.simpletabs.ClientTabsMod"
       }
     ]
   },
   "mixins": [
-    "mod_id.mixins.json"
+    "simpletabs.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.13.3",

@@ -1,9 +1,0 @@
-{
-  "required": true,
-  "package": "at.cath.simpletabs.SimpleTabs",
-  "compatibilityLevel": "JAVA_17",
-  "injectors": {
-    "defaultRequire": 1
-  },
-  "mixins": []
-}

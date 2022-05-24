@@ -11,7 +11,12 @@ val modVersion: String by project
 version = modVersion
 val mavenGroup: String by project
 group = mavenGroup
-repositories {}
+repositories {
+    maven {
+        name = "CottonMC"
+        url = uri("https://server.bbkr.space/artifactory/libs-release")
+    }
+}
 dependencies {
     val minecraftVersion: String by project
     minecraft("com.mojang", "minecraft", minecraftVersion)
@@ -23,6 +28,8 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
     val fabricKotlinVersion: String by project
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
+    val libGuiVersion = "5.4.1+1.18.2"
+    modImplementation("io.github.cottonmc", "LibGui", libGuiVersion)
 }
 tasks {
     val javaVersion = JavaVersion.VERSION_17
