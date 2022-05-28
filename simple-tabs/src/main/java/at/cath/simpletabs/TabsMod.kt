@@ -5,7 +5,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
 object TabsMod : ModInitializer {
-    private const val MOD_ID = "simpletabs"
+    const val MOD_ID = "simpletabs"
     val logger: Logger = LogManager.getLogger(MOD_ID)
 
     override fun onInitialize() {

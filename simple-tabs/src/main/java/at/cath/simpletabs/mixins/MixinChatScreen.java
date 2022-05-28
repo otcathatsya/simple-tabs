@@ -1,6 +1,6 @@
 package at.cath.simpletabs.mixins;
 
-import at.cath.simpletabs.gui.ChatTabsScreen;
+import at.cath.simpletabs.gui.ChatTabScreen;
 import net.minecraft.client.MinecraftClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,6 +14,6 @@ public class MixinChatScreen {
             at = @At("TAIL"))
     // TODO: Redirect at method start, don't invoke setScreen twice
     private void setScreen(String text, CallbackInfo ci) {
-        ((MinecraftClient) (Object) this).setScreen(new ChatTabsScreen(text));
+        ((MinecraftClient) (Object) this).setScreen(new ChatTabScreen(text));
     }
 }

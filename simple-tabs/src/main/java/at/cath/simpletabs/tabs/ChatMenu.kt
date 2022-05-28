@@ -4,10 +4,11 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.hud.ChatHud
 import net.minecraft.text.Text
 
-class CustomChatMenu(client: MinecraftClient?) : ChatHud(client) {
+class ChatMenu(client: MinecraftClient?) : ChatHud(client) {
 
     private var currentIndex: Int = 0
-    var tabList = mutableListOf(CustomChatTab())
+    var tabList =
+        mutableListOf(ChatTab("Donaudampfschifffahrtselektrizitätenhauptbetriebswerkbauunterbeamtengesellschaft"))
 
     override fun addMessage(message: Text?) {
         val msg = message.toString()
@@ -32,7 +33,7 @@ class CustomChatMenu(client: MinecraftClient?) : ChatHud(client) {
     }
 
     fun navigateTo(chatIndex: Int) {
-        if (chatIndex < tabList.size) {
+        if (chatIndex < tabList.size && chatIndex != currentIndex) {
             val tab = tabList[chatIndex]
             tabList[currentIndex]
 
@@ -41,8 +42,6 @@ class CustomChatMenu(client: MinecraftClient?) : ChatHud(client) {
 
             tab.unreadCount = 0
             currentIndex = chatIndex
-        } else {
-            throw IllegalArgumentException("Cannot navigate to chat tab; index out of range")
         }
     }
 }
