@@ -21,6 +21,8 @@ class ChatTab(
     @Transient
     val messages = mutableListOf<String>()
 
+    var theme = TabTheme.TAB_ELEMENT
+
     var unreadCount = 0
 
     private fun compilePattern(s: String, literal: Boolean): Matcher =

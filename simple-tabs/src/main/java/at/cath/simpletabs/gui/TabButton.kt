@@ -1,10 +1,10 @@
 package at.cath.simpletabs.gui
 
+import at.cath.simpletabs.tabs.ChatTab
+import at.cath.simpletabs.tabs.TabTheme
 import at.cath.simpletabs.utility.SimpleColour
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
-import net.minecraft.client.gui.widget.ButtonWidget
-import net.minecraft.client.gui.widget.ButtonWidget.PressAction
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 
@@ -14,43 +14,48 @@ class TabButton(
     width: Int,
     height: Int,
     message: Text,
-    var backgroundColour: SimpleColour = SimpleColour(166, 159, 152, 255 / 2),
-    var outlineColour: SimpleColour = SimpleColour(40, 17, 43, 255),
-    var textColour: SimpleColour = SimpleColour.WHITE,
-    var clickCallback: MouseActionCallback = object : MouseActionCallback {}
-) : ButtonWidget(x, y, width, height, message, PressAction { }), TabGUIComponent {
+    private val tab: ChatTab? = null,
+    clickCallback: MouseActionCallback = object : MouseActionCallback {}
+) :
+    SimpleButton(
+        x,
+        y,
+        width,
+        height,
+        message,
+        tab?.theme?.backgroundColour ?: TabTheme.CONTROL_ELEMENT.backgroundColour,
+        tab?.theme?.outlineColour ?: TabTheme.CONTROL_ELEMENT.outlineColour,
+        tab?.theme?.textColour ?: TabTheme.CONTROL_ELEMENT.textColour,
+        clickCallback
+    ), TabGUIComponent {
 
-    override fun renderButton(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+    override fun renderButton(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+        super.renderButton(matrices, mouseX, mouseY, delta)
         val minecraftClient = MinecraftClient.getInstance()
         val textRenderer = minecraftClient.textRenderer
 
-        DrawableHelper.fill(matrices, x, y, x + width, y + height, backgroundColour.packedRgb)
+        if (tab != null) {
+            if (tab.unreadCount > 0) {
+                val startX = x + width - 4
+                val startY = y + 4
+                DrawableHelper.fill(matrices, startX, startY, startX + 6, startY - 6, SimpleColour.RED.packedRgb)
 
-        // draw outline, TODO: implement themes
-        drawHorizontalLine(matrices, x, x + width, y, outlineColour.packedRgb)
-        drawHorizontalLine(matrices, x, x + width, y + height, outlineColour.packedRgb)
+                val startXScaled = startX / 0.5
+                val startYScaled = startY / 0.5
 
-        drawVerticalLine(matrices, x, y, y + height, outlineColour.packedRgb)
-        drawVerticalLine(matrices, x + width, y, y + height, outlineColour.packedRgb)
+                matrices.push()
+                matrices.scale(0.5f, 0.5f, 1.0f)
 
-        drawCenteredText(
-            matrices, textRenderer,
-            message, x + width / 2, y + (height - 8) / 2, textColour.packedRgb
-        )
-
-    }
-
-    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (clicked(mouseX, mouseY)) {
-            when (button) {
-                0 -> clickCallback.onLeftClick()
-                1 -> clickCallback.onRightClick()
-                2 -> clickCallback.onMouseMiddleClick()
-                else -> return false
+                DrawableHelper.drawCenteredText(
+                    matrices,
+                    textRenderer,
+                    Text.of("${tab.unreadCount}"),
+                    startXScaled.toInt() + 6,
+                    startYScaled.toInt() - 9,
+                    SimpleColour.WHITE.packedRgb
+                )
+                matrices.pop()
             }
-            playDownSound(MinecraftClient.getInstance().soundManager)
-            return true
         }
-        return false
     }
 }

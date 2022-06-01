@@ -3,13 +3,14 @@ package at.cath.simpletabs.gui
 import at.cath.simpletabs.tabs.ChatMenu
 import at.cath.simpletabs.tabs.ChatTab
 import net.minecraft.client.gui.screen.ChatScreen
+import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import kotlin.properties.Delegates
 
 class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
     private val componentPadding = 5
     private val cornerOffset = 2
-    private val controlOffset = 10
+    private val elementOffset = 2
 
     private val tabButtonWidth = 40
     private val tabWidth = tabButtonWidth + 2 * componentPadding
@@ -22,13 +23,12 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
     override fun init() {
         super.init()
         this.tabHeight = textRenderer.fontHeight + 2 * componentPadding
-        this.tabY = height - chatField.height - tabHeight - cornerOffset * 2
+        this.tabY = height - chatField.height - tabHeight - cornerOffset * 2 - 2
 
         (client?.inGameHud?.chatHud as? ChatMenu)?.let {
             tabMenu = it
         } ?: throw IllegalStateException("ChatHUD is not custom; cannot initialize tabs screen")
 
-        tabMenu.addTab(ChatTab("Hola"))
         drawUI()
     }
 
@@ -52,36 +52,35 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
         )
 
         val tabs = tabMenu.getActiveTabs()
-
-        val tabsStartX = pageLeftBtn.x + pageLeftBtn.width + controlOffset
+        val tabsStartX = pageLeftBtn.x + pageLeftBtn.width + elementOffset
 
         tabs.forEachIndexed { i, tab ->
             addDrawableChild(
                 TabButton(
-                    tabsStartX + i * tabWidth + if (i > 0) 2 * i else 0,
+                    tabsStartX + i * tabWidth + if (i > 0) elementOffset * i else 0,
                     tabY,
                     tabWidth,
                     tabHeight,
                     Text.of(textRenderer.trimToWidth(tab.name, tabButtonWidth)),
+                    tab,
                     clickCallback = object : MouseActionCallback {
                         override fun onLeftClick() {
                             tabMenu.navigateTo(tab.uuid)
                         }
 
                         override fun onRightClick() {
-                            // TODO: Implement settings
+                            //client?.setScreen(TabUIScreen(SettingsDescription(tab)))
                         }
 
                         override fun onMouseMiddleClick() {
-                            tabMenu.removeTab(tab.uuid)
+                            if (tabMenu.removeTab(tab.uuid)) drawUI()
                         }
                     })
             )
         }
 
-        val controlStartX = tabsStartX + tabMenu.showPerPage * tabWidth + (tabMenu.showPerPage - 1) * 2 + controlOffset
+        val controlStartX = tabsStartX + tabMenu.showPerPage * tabWidth + (tabMenu.showPerPage - 1) * 2 + elementOffset
 
-        // TODO: builder for those buttons
         val pageRightBtn = addDrawableChild(
             TabButton(
                 controlStartX,
@@ -98,13 +97,31 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
             )
         )
 
+        val addTabBtn = addDrawableChild(
+            TabButton(
+                pageRightBtn.x + pageRightBtn.width + 15,
+                tabY,
+                textRenderer.getWidth("+") + 2 * componentPadding,
+                tabHeight,
+                Text.of("+"),
+                clickCallback =
+                object : MouseActionCallback {
+                    override fun onLeftClick() {
+                        // yeah
+                        tabMenu.addTab(ChatTab("Awoo"))
+                        drawUI()
+                    }
+                }
+            )
+        )
+
         addDrawableChild(
             TabButton(
-                pageRightBtn.x + pageRightBtn.width + 1,
+                addTabBtn.x + addTabBtn.width + elementOffset,
                 tabY,
-                textRenderer.getWidth("${tabMenu.activePage}/${tabMenu.activeGroup}") + 2 * componentPadding,
+                textRenderer.getWidth("${tabMenu.activeGroup}") + 2 * componentPadding,
                 tabHeight,
-                Text.of("${tabMenu.activePage}/${tabMenu.activeGroup}"),
+                LiteralText("${tabMenu.activeGroup}"),
                 clickCallback =
                 object : MouseActionCallback {
                     override fun onLeftClick() {

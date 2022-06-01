@@ -19,9 +19,9 @@ class ChatMenu(client: MinecraftClient) : ChatHud(client) {
         if (pageTabs.all { it.isEmpty() }) {
             val defaultTab = ChatTab("General")
             pageTabs[0] = linkedMapOf(defaultTab.uuid to defaultTab)
-            selectedTab = defaultTab.uuid
+            navigateTo(defaultTab.uuid)
         } else if (selectedTab.isEmpty()) {
-            selectedTab = pageTabs.first { it.isNotEmpty() }.keys.first()
+            navigateTo(pageTabs.first { it.isNotEmpty() }.keys.first())
         }
     }
 
@@ -29,7 +29,6 @@ class ChatMenu(client: MinecraftClient) : ChatHud(client) {
         pageTabs.forEach { tabMap ->
             tabMap.values.forEach {
                 if (message != null) {
-                    println("msg string is ${message.asString()} for chat ${it.uuid}")
                     if (it.acceptsMessage(message.asString())) {
                         if (it.uuid == selectedTab)
                             super.addMessage(message)
@@ -47,21 +46,16 @@ class ChatMenu(client: MinecraftClient) : ChatHud(client) {
         pageTabs[activeGroup][chatTab.uuid] = chatTab
     }
 
-    fun removeTab(tabId: String) {
+    fun removeTab(tabId: String): Boolean {
         with(pageTabs[activeGroup]) {
             if (containsKey(tabId)) {
                 remove(tabId)
 
                 if (selectedTab == tabId)
                     selectedTab = ""
-
-                // empty pages are. not. tolerated.
-                if (isEmpty()) {
-                    pageTabs.remove(this)
-                    activeGroup = pageTabs.indexOfFirst { it.isNotEmpty() }
-                }
-
+                return true
             }
+            return false
         }
     }
 
@@ -95,10 +89,11 @@ class ChatMenu(client: MinecraftClient) : ChatHud(client) {
             selectedTab = ""
             clear(false)
             return true
-        } else if (pageTabs[activeGroup].isNotEmpty()) {
-            // I lied, empty tabs are allowed right after page creation
-            pageTabs.add(++activeGroup, linkedMapOf())
-            selectedTab = ""
+        } else if (pageTabs[activeGroup].size > 1) {
+            val defaultTab = ChatTab("General")
+            pageTabs.add(++activeGroup, linkedMapOf(defaultTab.uuid to defaultTab))
+
+            navigateTo(defaultTab.uuid)
             clear(false)
             return true
         }

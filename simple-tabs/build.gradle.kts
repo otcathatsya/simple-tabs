@@ -3,6 +3,7 @@ plugins {
     val kotlinVersion: String by System.getProperties()
     kotlin("jvm").version(kotlinVersion)
     kotlin("plugin.serialization").version(kotlinVersion)
+    id("org.jetbrains.dokka").version(kotlinVersion)
 }
 base {
     val archivesBaseName: String by project
