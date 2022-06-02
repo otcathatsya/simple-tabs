@@ -1,5 +1,6 @@
 package at.cath.simpletabs.tabs
 
+import at.cath.simpletabs.utility.SimpleColour
 import kotlinx.serialization.Transient
 import java.util.*
 import java.util.regex.Matcher
@@ -21,7 +22,7 @@ class ChatTab(
     @Transient
     val messages = mutableListOf<String>()
 
-    var theme = TabTheme.TAB_ELEMENT
+    var theme = TabTheme(SimpleColour(166, 159, 152, 255 / 2), SimpleColour.WHITE, SimpleColour.BLACK)
 
     var unreadCount = 0
 

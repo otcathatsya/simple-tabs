@@ -2,14 +2,15 @@ package at.cath.simpletabs.tabs
 
 import at.cath.simpletabs.utility.SimpleColour
 
+val CONTROL_ELEMENT = TabTheme(SimpleColour(166, 159, 152, 255), SimpleColour.WHITE, SimpleColour.BLACK)
+
 @kotlinx.serialization.Serializable
-data class TabTheme(
-    val backgroundColour: SimpleColour,
-    val textColour: SimpleColour,
-    val outlineColour: SimpleColour
+class TabTheme(
+    var backgroundColour: SimpleColour,
+    var textColour: SimpleColour,
+    var outlineColour: SimpleColour
 ) {
-    companion object {
-        val TAB_ELEMENT = TabTheme(SimpleColour(166, 159, 152, 255 / 2), SimpleColour.WHITE, SimpleColour.BLACK)
-        val CONTROL_ELEMENT = TabTheme(SimpleColour(166, 159, 152, 255), SimpleColour.WHITE, SimpleColour.BLACK)
-    }
+    fun setBackgroundCol(backgroundColour: SimpleColour) = apply { this.backgroundColour = backgroundColour }
+    fun setOutlineCol(outlineColour: SimpleColour) = apply { this.outlineColour = outlineColour }
+    fun setTextCol(textColour: SimpleColour) = apply { this.textColour = textColour }
 }

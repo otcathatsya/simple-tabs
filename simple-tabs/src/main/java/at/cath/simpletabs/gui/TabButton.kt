@@ -1,7 +1,7 @@
 package at.cath.simpletabs.gui
 
+import at.cath.simpletabs.tabs.CONTROL_ELEMENT
 import at.cath.simpletabs.tabs.ChatTab
-import at.cath.simpletabs.tabs.TabTheme
 import at.cath.simpletabs.utility.SimpleColour
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
@@ -23,9 +23,9 @@ class TabButton(
         width,
         height,
         message,
-        tab?.theme?.backgroundColour ?: TabTheme.CONTROL_ELEMENT.backgroundColour,
-        tab?.theme?.outlineColour ?: TabTheme.CONTROL_ELEMENT.outlineColour,
-        tab?.theme?.textColour ?: TabTheme.CONTROL_ELEMENT.textColour,
+        tab?.theme?.backgroundColour ?: CONTROL_ELEMENT.backgroundColour,
+        tab?.theme?.outlineColour ?: CONTROL_ELEMENT.outlineColour,
+        tab?.theme?.textColour ?: CONTROL_ELEMENT.textColour,
         clickCallback
     ), TabGUIComponent {
 
@@ -38,6 +38,7 @@ class TabButton(
             if (tab.unreadCount > 0) {
                 val startX = x + width - 4
                 val startY = y + 4
+
                 DrawableHelper.fill(matrices, startX, startY, startX + 6, startY - 6, SimpleColour.RED.packedRgb)
 
                 val startXScaled = startX / 0.5

@@ -23,7 +23,6 @@ open class SimpleButton(
     override fun renderButton(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
         val minecraftClient = MinecraftClient.getInstance()
         val textRenderer = minecraftClient.textRenderer
-
         DrawableHelper.fill(matrices, x, y, x + width, y + height, backgroundColour.packedRgb)
 
         drawHorizontalLine(matrices, x, x + width, y, outlineColour.packedRgb)
