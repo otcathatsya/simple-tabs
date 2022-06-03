@@ -5,10 +5,11 @@ import at.cath.simpletabs.utility.SimpleColour
 import io.github.cottonmc.cotton.gui.widget.*
 import io.github.cottonmc.cotton.gui.widget.data.Axis
 import io.github.cottonmc.cotton.gui.widget.data.Insets
+import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 
 
-class TabDesignPanel(root: WPanel, tab: ChatTab) : WGridPanel() {
+class TabDesignPanel(width: Int, height: Int, tab: ChatTab) : WGridPanel() {
 
     private val inputBackgroundColHex: WTextField
     private val bgTransparencySlider: WSlider
@@ -21,7 +22,7 @@ class TabDesignPanel(root: WPanel, tab: ChatTab) : WGridPanel() {
 
     init {
         insets = Insets.ROOT_PANEL
-        setSize((root.width * 0.9).toInt(), (root.height * 0.8).toInt())
+        setSize(width, height)
 
         with(tab.theme) {
             inputBackgroundColHex = WTextField()
@@ -88,6 +89,7 @@ class TabDesignPanel(root: WPanel, tab: ChatTab) : WGridPanel() {
                 if (colText != null)
                     setTextCol(colText)
             }
+            MinecraftClient.getInstance().setScreen(null)
         }
         add(button, 2, 9, 5, 1)
     }

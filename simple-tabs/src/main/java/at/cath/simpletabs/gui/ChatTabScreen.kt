@@ -2,8 +2,9 @@ package at.cath.simpletabs.gui
 
 import at.cath.simpletabs.gui.settings.SettingsDescription
 import at.cath.simpletabs.gui.settings.TabUIScreen
-import at.cath.simpletabs.tabs.ChatMenu
-import at.cath.simpletabs.tabs.ChatTab
+import at.cath.simpletabs.gui.settings.TabUpdatePanel
+import at.cath.simpletabs.tabs.TabMenu
+import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
@@ -14,20 +15,20 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
     private val cornerOffset = 2
     private val elementOffset = 2
 
-    private val tabButtonWidth = 40
+    private val tabButtonWidth = 50
     private val tabWidth = tabButtonWidth + 2 * componentPadding
     private var tabHeight by Delegates.notNull<Int>()
 
     private var tabY by Delegates.notNull<Int>()
 
-    private lateinit var tabMenu: ChatMenu
+    private lateinit var tabMenu: TabMenu
 
     override fun init() {
         super.init()
         this.tabHeight = textRenderer.fontHeight + 2 * componentPadding
         this.tabY = height - chatField.height - tabHeight - cornerOffset * 2 - 2
 
-        (client?.inGameHud?.chatHud as? ChatMenu)?.let {
+        (client?.inGameHud?.chatHud as? TabMenu)?.let {
             tabMenu = it
         } ?: throw IllegalStateException("ChatHUD is not custom; cannot initialize tabs screen")
 
@@ -109,11 +110,13 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
                 clickCallback =
                 object : MouseActionCallback {
                     override fun onLeftClick() {
-                        // yeah
-                        tabMenu.addTab(ChatTab("Guild"))
-                        tabMenu.addTab(ChatTab("Party"))
-                        tabMenu.addTab(ChatTab("DMs"))
-                        drawUI()
+                        client?.setScreen(TabUIScreen(object : LightweightGuiDescription() {
+                            init {
+                                val root = TabUpdatePanel(256, 100, null, tabMenu)
+                                setRootPanel(root)
+                                root.validate(this)
+                            }
+                        }))
                     }
                 }
             )

@@ -14,18 +14,24 @@ class SettingsDescription(tab: ChatTab) : LightweightGuiDescription() {
     init {
         val root = WGridPanel()
         setRootPanel(root)
-        root.setSize(256, 240);
-        root.insets = Insets.ROOT_PANEL;
+        root.setSize(256, 240)
+        root.insets = Insets.ROOT_PANEL
 
         val panels = WTabPanel()
-        panels.add(TabDesignPanel(root, tab)) {
-            it.icon(ItemIcon(ItemStack(Items.SUNFLOWER)))
+        val tabWidth = (root.width * 0.9).toInt()
+        val tabHeight = (root.height * 0.8).toInt()
+
+        panels.add(TabUpdatePanel(tabWidth, tabHeight, tab)) {
+            it.icon(ItemIcon(ItemStack(Items.QUARTZ)))
+            it.title(Text.of("Settings"))
+        }
+
+        panels.add(TabDesignPanel(tabWidth, tabHeight, tab)) {
+            it.icon(ItemIcon(ItemStack(Items.PEONY)))
             it.title(Text.of("Design"))
         }
         root.add(panels, 0, 0)
 
         root.validate(this)
     }
-
-
 }

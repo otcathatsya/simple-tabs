@@ -1,7 +1,7 @@
 package at.cath.simpletabs
 
 import at.cath.simpletabs.mixins.MixinChatHudAccessor
-import at.cath.simpletabs.tabs.ChatMenu
+import at.cath.simpletabs.tabs.TabMenu
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.fabricmc.api.ClientModInitializer
@@ -16,15 +16,14 @@ object ClientTabsMod : ClientModInitializer {
         // replace vanilla ChatHud with custom one via mixin accessor
         ClientLifecycleEvents.CLIENT_STARTED.register(ClientStarted { client: MinecraftClient ->
             (client.inGameHud as MixinChatHudAccessor).setChatHud(
-                ChatMenu(client)
+                TabMenu(client)
             )
         })
 
         ClientPlayConnectionEvents.DISCONNECT.register(ClientPlayConnectionEvents.Disconnect { _, client ->
-            (client.inGameHud.chatHud as? ChatMenu)?.let {
-                val encoded = Json.encodeToString((client.inGameHud.chatHud as ChatMenu).pageTabs)
-                println("more importantly, $encoded")
-
+            (client.inGameHud.chatHud as? TabMenu)?.let {
+            // TODO: implement save/load json etc
+            //val encoded = Json.encodeToString((client.inGameHud.chatHud as TabMenu).pageTabs)
             }
         })
     }

@@ -2,11 +2,11 @@ package at.cath.simpletabs.tabs
 
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.hud.ChatHud
+import net.minecraft.text.Style
 import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
 import kotlin.math.min
 
-class ChatMenu(client: MinecraftClient) : ChatHud(client) {
+class TabMenu(client: MinecraftClient) : ChatHud(client) {
 
     var activeGroup: Int = 0
     var activePage: Int = 0
@@ -25,18 +25,17 @@ class ChatMenu(client: MinecraftClient) : ChatHud(client) {
         }
     }
 
-    override fun addMessage(message: Text?) {
+    override fun addMessage(message: Text) {
+        val msg = message.getWithStyle(Style.EMPTY).last().asString()
         pageTabs.forEach { tabMap ->
             tabMap.values.forEach {
-                if (message != null) {
-                    if (it.acceptsMessage(message.asString())) {
-                        if (it.uuid == selectedTab)
-                            super.addMessage(message)
-                        else if (!it.muted)
-                            it.unreadCount++
+                if (it.acceptsMessage(msg)) {
+                    if (it.uuid == selectedTab)
+                        super.addMessage(message)
+                    else if (!it.muted)
+                        it.unreadCount++
 
-                        it.messages += message.string
-                    }
+                    it.messages += message
                 }
             }
         }
@@ -51,8 +50,10 @@ class ChatMenu(client: MinecraftClient) : ChatHud(client) {
             if (containsKey(tabId)) {
                 remove(tabId)
 
-                if (selectedTab == tabId)
+                if (selectedTab == tabId) {
                     selectedTab = ""
+                    clear()
+                }
                 return true
             }
             return false
@@ -115,7 +116,7 @@ class ChatMenu(client: MinecraftClient) : ChatHud(client) {
             val tab = pageTabs[activeGroup][tabId]!!
             clear(false)
 
-            tab.messages.forEach { super.addMessage(TranslatableText(it)) }
+            tab.messages.forEach { super.addMessage(it) }
 
             tab.unreadCount = 0
             selectedTab = tab.uuid

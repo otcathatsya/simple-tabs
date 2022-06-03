@@ -12,7 +12,6 @@ public class MixinChatScreen {
     @Inject(
             method = "openChatScreen",
             at = @At("TAIL"))
-    // TODO: Redirect at method start, don't invoke setScreen twice
     private void setScreen(String text, CallbackInfo ci) {
         ((MinecraftClient) (Object) this).setScreen(new ChatTabScreen(text));
     }

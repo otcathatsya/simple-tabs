@@ -2,9 +2,8 @@ package at.cath.simpletabs.tabs
 
 import at.cath.simpletabs.utility.SimpleColour
 import kotlinx.serialization.Transient
+import net.minecraft.text.Text
 import java.util.*
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 @kotlinx.serialization.Serializable
 class ChatTab(
@@ -17,31 +16,35 @@ class ChatTab(
 ) {
 
     @Transient
-    private var matcher: Matcher = compilePattern(regex, literal)
+    private var regExp: Regex = compileRegex(regex, literal)
 
     @Transient
-    val messages = mutableListOf<String>()
+    val messages = mutableListOf<Text>()
+
+    @Transient
+    var unreadCount = 0
 
     var theme = TabTheme(SimpleColour(166, 159, 152, 255 / 2), SimpleColour.WHITE, SimpleColour.BLACK)
 
-    var unreadCount = 0
-
-    private fun compilePattern(s: String, literal: Boolean): Matcher =
-        Pattern.compile(s, if (literal) Pattern.LITERAL else 0).matcher("")
+    private fun compileRegex(pattern: String, literal: Boolean): Regex =
+        Regex(pattern, if (literal) setOf(RegexOption.LITERAL) else setOf())
 
     fun updateSettings(
-        name: String,
-        regex: String = "",
-        muted: Boolean = false,
-        literal: Boolean = false,
-        inverted: Boolean = false
+        name: String = this.name,
+        regex: String = this.regex,
+        muted: Boolean = this.muted,
+        literal: Boolean = this.literal,
+        inverted: Boolean = this.inverted
     ) {
         this.name = name
         this.regex = regex
         this.muted = muted
         this.inverted = inverted
-        this.matcher = compilePattern(regex, literal)
+        this.literal = literal
+        this.regExp = compileRegex(regex, literal)
     }
 
-    fun acceptsMessage(input: String): Boolean = matcher.reset(input).find() == !inverted
+    fun acceptsMessage(input: String): Boolean {
+        return regExp.containsMatchIn(input) == !inverted
+    }
 }
