@@ -19,7 +19,7 @@ class TabUpdatePanel(width: Int, height: Int, tab: ChatTab?, tabMenu: TabMenu? =
 
         val inputRegexLabel = WLabel(Text.of("Pattern"))
         val inputRegex = WTextField()
-        inputRegex.maxLength = 32
+        inputRegex.maxLength = 200
 
         val toggleInverted = WToggleButton(Text.of("Inverted?"))
         val toggleMuted = WToggleButton(Text.of("Muted?"))

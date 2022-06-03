@@ -30,8 +30,9 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
     val fabricKotlinVersion: String by project
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
-    val libGuiVersion = "5.4.1+1.18.2"
+    val libGuiVersion: String by project
     modImplementation("io.github.cottonmc", "LibGui", libGuiVersion)
+    include("io.github.cottonmc", "LibGui", libGuiVersion)
 }
 tasks {
     val javaVersion = JavaVersion.VERSION_17
