@@ -1,18 +1,16 @@
 {
   "schemaVersion": 1,
-  "id": "simpletabs",
+  "id": "simple-tabs",
   "version": "${version}",
-  "name": "Simple Tabs: Fabric",
-  "description": "It does things",
+  "name": "Simple Tabs",
+  "description": "Filter, colour and customize your chat!",
   "authors": [
     "otcathatsya"
   ],
   "contact": {
-    "homepage": "https://example.com/",
-    "issues": "https://example.com/",
-    "sources": "https://example.com/"
+    "homepage": "https://cath.at"
   },
-  "license": "The Unlicense",
+  "license": "MIT",
   "icon": "assets/simpletabs/icon.png",
   "environment": "*",
   "entrypoints": {
