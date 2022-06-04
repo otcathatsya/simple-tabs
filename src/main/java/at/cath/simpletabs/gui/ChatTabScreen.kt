@@ -6,7 +6,6 @@ import at.cath.simpletabs.gui.settings.TabUpdatePanel
 import at.cath.simpletabs.tabs.TabMenu
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription
 import net.minecraft.client.gui.screen.ChatScreen
-import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import kotlin.properties.Delegates
 
@@ -128,7 +127,7 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
                 tabY,
                 textRenderer.getWidth("${tabMenu.activeGroup}") + 2 * componentPadding,
                 tabHeight,
-                LiteralText("${tabMenu.activeGroup}"),
+                Text.of("${tabMenu.activeGroup}"),
                 clickCallback =
                 object : MouseActionCallback {
                     override fun onLeftClick() {

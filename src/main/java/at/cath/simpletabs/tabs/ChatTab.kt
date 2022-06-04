@@ -27,7 +27,7 @@ class ChatTab(
     var theme = TabTheme(SimpleColour(166, 159, 152, 255 / 2), SimpleColour.WHITE, SimpleColour.BLACK)
 
     private fun compileRegex(pattern: String, literal: Boolean): Regex =
-        Regex(pattern, if (literal) setOf(RegexOption.LITERAL) else setOf())
+        Regex(pattern, if (literal) setOf(RegexOption.LITERAL, RegexOption.IGNORE_CASE) else setOf())
 
     fun updateSettings(
         name: String = this.name,
@@ -44,7 +44,5 @@ class ChatTab(
         this.regExp = compileRegex(regex, literal)
     }
 
-    fun acceptsMessage(input: String): Boolean {
-        return regExp.containsMatchIn(input) == !inverted
-    }
+    fun acceptsMessage(input: String): Boolean = regExp.containsMatchIn(input) == !inverted
 }
