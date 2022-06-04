@@ -1,21 +1,30 @@
 package at.cath.simpletabs.tabs
 
+import at.cath.simpletabs.TabsMod
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.hud.ChatHud
-import net.minecraft.text.Style
 import net.minecraft.text.Text
 import kotlin.math.min
 
-class TabMenu(client: MinecraftClient) : ChatHud(client) {
+class TabMenu(client: MinecraftClient, serialized: String? = null) : ChatHud(client) {
 
     var activeGroup: Int = 0
-    var activePage: Int = 0
+    private var activePage: Int = 0
+    private var selectedTab: String = ""
 
-    var selectedTab: String = ""
     val showPerPage = 4
     var pageTabs = mutableListOf(linkedMapOf<String, ChatTab>())
 
     init {
+        if (serialized != null) {
+            try {
+                this.pageTabs = Json.decodeFromString(serialized)
+            } catch (ex: Exception) {
+                TabsMod.logger.error("Encountered invalid tabs config format")
+            }
+        }
         if (pageTabs.all { it.isEmpty() }) {
             val defaultTab = ChatTab("General")
             pageTabs[0] = linkedMapOf(defaultTab.uuid to defaultTab)
@@ -26,10 +35,9 @@ class TabMenu(client: MinecraftClient) : ChatHud(client) {
     }
 
     override fun addMessage(message: Text) {
-        val msg = message.getWithStyle(Style.EMPTY).last().asString()
         pageTabs.forEach { tabMap ->
             tabMap.values.forEach {
-                if (it.acceptsMessage(msg)) {
+                if (it.acceptsMessage(message.string)) {
                     if (it.uuid == selectedTab)
                         super.addMessage(message)
                     else if (!it.muted)

@@ -7,24 +7,35 @@ import kotlinx.serialization.json.Json
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.ClientStarted
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.ClientStopping
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.MinecraftClient
+import java.io.File
 
 object ClientTabsMod : ClientModInitializer {
 
+    private val TABS_PATH = "${FabricLoader.getInstance().configDir}/tabs.json"
+
     override fun onInitializeClient() {
+        val configFile = File(TABS_PATH)
+        if (!configFile.createNewFile()) {
+            TabsMod.logger.info("No config file found, creating new")
+        }
         // replace vanilla ChatHud with custom one via mixin accessor
         ClientLifecycleEvents.CLIENT_STARTED.register(ClientStarted { client: MinecraftClient ->
             (client.inGameHud as MixinChatHudAccessor).setChatHud(
-                TabMenu(client)
+                TabMenu(client, configFile.readText())
             )
         })
 
-        ClientPlayConnectionEvents.DISCONNECT.register(ClientPlayConnectionEvents.Disconnect { _, client ->
-            (client.inGameHud.chatHud as? TabMenu)?.let {
-            // TODO: implement save/load json etc
-            //val encoded = Json.encodeToString((client.inGameHud.chatHud as TabMenu).pageTabs)
+        ClientLifecycleEvents.CLIENT_STOPPING.register(ClientStopping {
+            (it.inGameHud.chatHud as? TabMenu)?.let { tabMenu ->
+                val tabsEncoded = Json.encodeToString(tabMenu.pageTabs)
+                configFile.bufferedWriter().use { out ->
+                    out.write(tabsEncoded)
+                }
             }
         })
+
     }
 }
