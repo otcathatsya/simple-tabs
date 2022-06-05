@@ -11,15 +11,18 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.C
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.MinecraftClient
 import java.io.File
+import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
 
 object ClientTabsMod : ClientModInitializer {
 
-    private val TABS_PATH = "${FabricLoader.getInstance().configDir}/tabs.json"
+    private val TABS_PATH = "${FabricLoader.getInstance().configDir}/${TabsMod.MOD_ID}"
 
     override fun onInitializeClient() {
-        val configFile = File(TABS_PATH)
-        if (!configFile.createNewFile()) {
-            TabsMod.logger.info("No config file found, creating new")
+        val configFile = File("$TABS_PATH/tabs.json")
+        if(!configFile.exists()) {
+            Path(TABS_PATH).createDirectories()
+            configFile.createNewFile()
         }
         // replace vanilla ChatHud with custom one via mixin accessor
         ClientLifecycleEvents.CLIENT_STARTED.register(ClientStarted { client: MinecraftClient ->
