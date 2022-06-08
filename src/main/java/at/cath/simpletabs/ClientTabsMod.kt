@@ -1,6 +1,6 @@
 package at.cath.simpletabs
 
-import at.cath.simpletabs.mixins.MixinChatHudAccessor
+import at.cath.simpletabs.mixins.ChatHudAccessor
 import at.cath.simpletabs.tabs.TabMenu
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -26,7 +26,7 @@ object ClientTabsMod : ClientModInitializer {
         }
         // replace vanilla ChatHud with custom one via mixin accessor
         ClientLifecycleEvents.CLIENT_STARTED.register(ClientStarted { client: MinecraftClient ->
-            (client.inGameHud as MixinChatHudAccessor).setChatHud(
+            (client.inGameHud as ChatHudAccessor).setChatHud(
                 TabMenu(client, configFile.readText())
             )
         })

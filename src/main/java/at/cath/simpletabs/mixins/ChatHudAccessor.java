@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(InGameHud.class)
-public interface MixinChatHudAccessor {
+public interface ChatHudAccessor {
     @Accessor("chatHud")
     @Mutable
     void setChatHud(ChatHud chatHud);

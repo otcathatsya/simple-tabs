@@ -6,7 +6,8 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "MixinChatHudAccessor",
-    "MixinChatScreen"
+    "ChatHudAccessor",
+    "MixinChatScreen",
+    "MixinChatHud"
   ]
 }
