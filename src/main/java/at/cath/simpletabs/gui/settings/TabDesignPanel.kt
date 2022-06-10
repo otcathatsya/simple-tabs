@@ -2,28 +2,34 @@ package at.cath.simpletabs.gui.settings
 
 import at.cath.simpletabs.tabs.ChatTab
 import at.cath.simpletabs.utility.SimpleColour
-import io.github.cottonmc.cotton.gui.widget.*
+import io.github.cottonmc.cotton.gui.widget.WGridPanel
+import io.github.cottonmc.cotton.gui.widget.WLabel
+import io.github.cottonmc.cotton.gui.widget.WSlider
+import io.github.cottonmc.cotton.gui.widget.WTextField
 import io.github.cottonmc.cotton.gui.widget.data.Axis
 import io.github.cottonmc.cotton.gui.widget.data.Insets
-import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
+import net.minecraft.util.ActionResult
 
 
-class TabDesignPanel(width: Int, height: Int, tab: ChatTab) : WGridPanel() {
+class TabDesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridPanel(), SaveSettingsCallback {
 
-    private val inputBackgroundColHex: WTextField
-    private val bgTransparencySlider: WSlider
+    private lateinit var inputBackgroundColHex: WTextField
+    private lateinit var bgTransparencySlider: WSlider
 
-    private val inputOutlineColHex: WTextField
-    private val outlineTransparencySlider: WSlider
+    private lateinit var inputOutlineColHex: WTextField
+    private lateinit var outlineTransparencySlider: WSlider
 
-    private val inputTextColHex: WTextField
-    private val textTransparencySlider: WSlider
+    private lateinit var inputTextColHex: WTextField
+    private lateinit var textTransparencySlider: WSlider
 
     init {
         insets = Insets.ROOT_PANEL
         setSize(width, height)
+        drawInputWidgets()
+    }
 
+    private fun drawInputWidgets() {
         with(tab.theme) {
             inputBackgroundColHex = WTextField()
             inputBackgroundColHex.text = backgroundColour.asHexString()
@@ -66,31 +72,26 @@ class TabDesignPanel(width: Int, height: Int, tab: ChatTab) : WGridPanel() {
             add(inputTextColLabel, 0, 6, 4, 1)
             add(inputTextColHex, 0, 7, 4, 1)
             add(textTransparencySlider, 6, 7, 3, 1)
+
+            val inputTransparencyLabel = WLabel(Text.of("Transparency"))
+            add(inputTransparencyLabel, 6, 0, 3, 1)
         }
+    }
 
-        val inputTransparencyLabel = WLabel(Text.of("Transparency"))
-        add(inputTransparencyLabel, 6, 0, 3, 1)
+    override fun onClose(): ActionResult {
+        val colBackground = SimpleColour.packedFromHex(inputBackgroundColHex.text)?.fade(bgTransparencySlider.value)
+        val colOutline = SimpleColour.packedFromHex(inputOutlineColHex.text)?.fade(outlineTransparencySlider.value)
+        val colText = SimpleColour.packedFromHex(inputTextColHex.text)?.fade(textTransparencySlider.value)
 
-        val button = WButton(Text.of("Confirm"))
-        button.setOnClick {
-            val colBackground =
-                SimpleColour.packedFromHex(inputBackgroundColHex.text)?.setAlpha(bgTransparencySlider.value)
-            val colOutline =
-                SimpleColour.packedFromHex(inputOutlineColHex.text)?.setAlpha(outlineTransparencySlider.value)
-            val colText = SimpleColour.packedFromHex(inputTextColHex.text)?.setAlpha(textTransparencySlider.value)
-
+        return if (colBackground != null && colOutline != null && colText != null) {
             tab.theme.apply {
-                if (colBackground != null)
-                    setBackgroundCol(colBackground)
-
-                if (colOutline != null)
-                    setOutlineCol(colOutline)
-
-                if (colText != null)
-                    setTextCol(colText)
+                setBackgroundCol(colBackground)
+                setOutlineCol(colOutline)
+                setTextCol(colText)
             }
-            MinecraftClient.getInstance().setScreen(null)
+            ActionResult.PASS
+        } else {
+            ActionResult.FAIL
         }
-        add(button, 2, 9, 5, 1)
     }
 }

@@ -2,6 +2,7 @@ package at.cath.simpletabs.utility
 
 @kotlinx.serialization.Serializable
 class SimpleColour(val red: Int, val green: Int, val blue: Int, var alpha: Int) {
+
     val packedRgb: Int
         get() = alpha and 0xFF shl 24 or
                 (red and 0xFF shl 16) or
@@ -27,7 +28,7 @@ class SimpleColour(val red: Int, val green: Int, val blue: Int, var alpha: Int) 
 
     fun asHexString(): String = String.format("#%02x%02x%02x", red, green, blue)
 
-    fun setAlpha(alpha: Int): SimpleColour = apply {
+    fun fade(alpha: Int): SimpleColour = apply {
         this.alpha = alpha
     }
 }

@@ -2,36 +2,52 @@ package at.cath.simpletabs.gui.settings
 
 import at.cath.simpletabs.tabs.ChatTab
 import at.cath.simpletabs.tabs.TabMenu
-import io.github.cottonmc.cotton.gui.widget.*
+import io.github.cottonmc.cotton.gui.widget.WGridPanel
+import io.github.cottonmc.cotton.gui.widget.WLabel
+import io.github.cottonmc.cotton.gui.widget.WTextField
+import io.github.cottonmc.cotton.gui.widget.WToggleButton
 import io.github.cottonmc.cotton.gui.widget.data.Insets
-import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
+import net.minecraft.util.ActionResult
 import java.util.regex.PatternSyntaxException
 
-class TabUpdatePanel(width: Int, height: Int, tab: ChatTab?, tabMenu: TabMenu? = null) : WGridPanel() {
+class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?, private val tabMenu: TabMenu? = null) :
+    WGridPanel(),
+    SaveSettingsCallback {
+
+    private lateinit var inputName: WTextField
+    private lateinit var inputRegex: WTextField
+    private lateinit var toggleInverted: WToggleButton
+    private lateinit var toggleMuted: WToggleButton
+    private lateinit var toggleLiteral: WToggleButton
 
     init {
         insets = Insets.ROOT_PANEL
         setSize(width, height)
+        drawInputWidgets()
+    }
 
+    private fun drawInputWidgets() {
         val inputNameLabel = WLabel(Text.of("Tab Name"))
-        val inputName = WTextField()
+        inputName = WTextField()
 
         val inputRegexLabel = WLabel(Text.of("Pattern"))
-        val inputRegex = WTextField()
+        inputRegex = WTextField()
         inputRegex.maxLength = 200
 
-        val toggleInverted = WToggleButton(Text.of("Inverted?"))
-        val toggleMuted = WToggleButton(Text.of("Muted?"))
-        val toggleLiteral = WToggleButton(Text.of("Match literal?"))
+        toggleInverted = WToggleButton(Text.of("Inverted?"))
+        toggleMuted = WToggleButton(Text.of("Muted?"))
+        toggleLiteral = WToggleButton(Text.of("Match literal?"))
 
-        if (tab != null) {
-            toggleInverted.toggle = tab.inverted
-            toggleMuted.toggle = tab.muted
-            toggleLiteral.toggle = tab.literal
+        with(tab) {
+            if (this != null) {
+                toggleInverted.toggle = inverted
+                toggleMuted.toggle = muted
+                toggleLiteral.toggle = literal
 
-            inputName.text = tab.name
-            inputRegex.text = tab.regex
+                inputName.text = name
+                inputRegex.text = regex
+            }
         }
 
         add(inputNameLabel, 0, 0, 1, 1)
@@ -43,33 +59,32 @@ class TabUpdatePanel(width: Int, height: Int, tab: ChatTab?, tabMenu: TabMenu? =
         add(toggleInverted, 6, 0, 1, 1)
         add(toggleMuted, 6, 1, 1, 1)
         add(toggleLiteral, 6, 2, 1, 1)
+    }
 
-        val button = WButton(Text.of("Confirm"))
-
-        button.setOnClick {
-            if (inputName.text.isNotEmpty() && inputRegex.text.isNotEmpty() && (toggleLiteral.toggle || try {
-                    inputRegex.text.toRegex()
-                    true
-                } catch (ex: PatternSyntaxException) {
-                    false
-                })
-            ) {
-                if (tab != null) {
-                    tab.updateSettings(
-                        name = inputName.text, regex = inputRegex.text,
-                        inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
-                        literal = toggleLiteral.toggle
-                    )
-                } else tabMenu?.addTab(
-                    ChatTab(
-                        name = inputName.text, regex = inputRegex.text,
-                        inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
-                        literal = toggleLiteral.toggle
-                    )
+    override fun onClose(): ActionResult {
+        if (inputName.text.isNotEmpty() && inputRegex.text.isNotEmpty() && (toggleLiteral.toggle || try {
+                inputRegex.text.toRegex()
+                true
+            } catch (ex: PatternSyntaxException) {
+                false
+            })
+        ) {
+            if (tab != null) {
+                tab.updateSettings(
+                    name = inputName.text, regex = inputRegex.text,
+                    inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
+                    literal = toggleLiteral.toggle
                 )
-                MinecraftClient.getInstance().setScreen(null)
-            }
+            } else tabMenu?.addTab(
+                ChatTab(
+                    name = inputName.text, regex = inputRegex.text,
+                    inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
+                    literal = toggleLiteral.toggle
+                )
+            )
+            return ActionResult.PASS
+        } else {
+            return ActionResult.FAIL
         }
-        add(button, 6, 4, 5, 1)
     }
 }
