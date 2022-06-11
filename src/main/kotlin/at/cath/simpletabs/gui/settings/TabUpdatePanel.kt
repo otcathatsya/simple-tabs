@@ -1,7 +1,6 @@
 package at.cath.simpletabs.gui.settings
 
 import at.cath.simpletabs.tabs.ChatTab
-import at.cath.simpletabs.tabs.TabMenu
 import io.github.cottonmc.cotton.gui.widget.WGridPanel
 import io.github.cottonmc.cotton.gui.widget.WLabel
 import io.github.cottonmc.cotton.gui.widget.WTextField
@@ -11,15 +10,15 @@ import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import java.util.regex.PatternSyntaxException
 
-class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?, private val tabMenu: TabMenu? = null) :
+class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
     WGridPanel(),
     SaveSettingsCallback {
 
-    private lateinit var inputName: WTextField
-    private lateinit var inputRegex: WTextField
-    private lateinit var toggleInverted: WToggleButton
-    private lateinit var toggleMuted: WToggleButton
-    private lateinit var toggleLiteral: WToggleButton
+    lateinit var inputName: WTextField
+    lateinit var inputRegex: WTextField
+    lateinit var toggleInverted: WToggleButton
+    lateinit var toggleMuted: WToggleButton
+    lateinit var toggleLiteral: WToggleButton
 
     init {
         insets = Insets.ROOT_PANEL
@@ -69,18 +68,10 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?, private
                 false
             })
         ) {
-            if (tab != null) {
-                tab.updateSettings(
-                    name = inputName.text, regex = inputRegex.text,
-                    inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
-                    literal = toggleLiteral.toggle
-                )
-            } else tabMenu?.addTab(
-                ChatTab(
-                    name = inputName.text, regex = inputRegex.text,
-                    inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
-                    literal = toggleLiteral.toggle
-                )
+            tab?.updateSettings(
+                name = inputName.text, regex = inputRegex.text,
+                inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
+                literal = toggleLiteral.toggle
             )
             return ActionResult.PASS
         } else {
