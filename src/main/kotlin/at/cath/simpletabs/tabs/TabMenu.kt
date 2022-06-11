@@ -1,6 +1,7 @@
 package at.cath.simpletabs.tabs
 
 import at.cath.simpletabs.TabsMod
+import at.cath.simpletabs.mixins.ChatHudInvoker
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import net.minecraft.client.MinecraftClient
@@ -8,7 +9,7 @@ import net.minecraft.client.gui.hud.ChatHud
 import net.minecraft.text.Text
 import kotlin.math.min
 
-class TabMenu(client: MinecraftClient, serialized: String? = null) : ChatHud(client) {
+class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud(client) {
 
     var activeGroup: Int = 0
     private var activePage: Int = 0
@@ -124,7 +125,8 @@ class TabMenu(client: MinecraftClient, serialized: String? = null) : ChatHud(cli
             val tab = pageTabs[activeGroup][tabId]!!
             clear(false)
 
-            tab.messages.forEach { super.addMessage(it) }
+            // mixin invoker to avoid printing a new message to logs when switching tabs
+            tab.messages.forEach { (this as ChatHudInvoker).addMessageWithoutLog(it, 0, client.inGameHud.ticks, false) }
 
             tab.unreadCount = 0
             selectedTab = tab.uuid
