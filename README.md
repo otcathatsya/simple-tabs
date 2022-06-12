@@ -10,6 +10,6 @@ Organize your tabs further by storing them in different groups and pages and giv
 Fabric re-code of the original mod written by [FloorIsJava](https://gitlab.com/FloorIsJava/SimpleTabs) for forge, feature ideas by Rinjani. 
 
 Uses [Java's regex](https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html) engine and syntax flavour,
-**requires [Fabric API]() and [Fabric Kotlin](https://www.curseforge.com/minecraft/mc-mods/fabric-language-kotlin) present in mods folder**.
+**requires [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api) and [Fabric Kotlin](https://www.curseforge.com/minecraft/mc-mods/fabric-language-kotlin) present in mods folder**.
 
 <img src="https://i.imgur.com/fKvKur5.png">
