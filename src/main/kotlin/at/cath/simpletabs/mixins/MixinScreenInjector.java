@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MinecraftClient.class)
-public class MixinChatScreen {
+public class MixinScreenInjector {
     @Inject(
             method = "openChatScreen",
             at = @At("TAIL"))

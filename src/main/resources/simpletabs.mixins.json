@@ -6,9 +6,9 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "ChatHudAccessor",
-    "ChatHudInvoker",
-    "MixinChatHud",
-    "MixinChatScreen"
+    "MixinHudAccessor",
+    "MixinHudUtility",
+    "MixinInfiniteHistory",
+    "MixinScreenInjector"
   ]
 }

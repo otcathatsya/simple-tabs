@@ -1,12 +1,15 @@
 package at.cath.simpletabs.tabs
 
 import at.cath.simpletabs.TabsMod
-import at.cath.simpletabs.mixins.ChatHudInvoker
+import at.cath.simpletabs.mixins.MixinHudUtility
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.hud.ChatHud
+import net.minecraft.text.Style
 import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
+import net.minecraft.util.Formatting
 import kotlin.math.min
 
 class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud(client) {
@@ -38,17 +41,55 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
     override fun addMessage(message: Text) {
         pageTabs.forEach { tabMap ->
             tabMap.values.forEach {
-                if (it.acceptsMessage(message.string)) {
-                    if (it.uuid == selectedTab)
-                        super.addMessage(message)
-                    else if (!it.muted)
-                        it.unreadCount++
+                var repeatCount = 0
+                var incoming = message
+                if (it.acceptsMessage(incoming.string)) {
+                    if (it.messages.isNotEmpty()) {
+                        val (extractedMsg, repeats) = extractRepeatMsg(it.messages.last())
+                        if (incoming.string == extractedMsg.string) {
+                            repeatCount = repeats
+                            repeatCount += 1
+                        }
+                    }
 
-                    it.messages += message
+                    if (repeatCount > 0)
+                        incoming = incoming.appendRepeatMsg(repeatCount)
+
+                    if (it.uuid == selectedTab) {
+                        if (repeatCount > 0) (this as MixinHudUtility).visibleMessages.removeFirst()
+                        super.addMessage(incoming)
+                    } else if (!it.muted) {
+                        it.unreadCount++
+                    }
+
+                    if (repeatCount > 0) it.messages.removeLast()
+                    it.messages += incoming
                 }
             }
         }
     }
+
+    private fun extractRepeatMsg(msg: Text): Pair<Text, Int> {
+        with(msg.siblings) {
+            if (size > 0) {
+                val lastComponent = last()
+                if (lastComponent is TranslatableText && lastComponent.key == "chat.simpletabs.repeat") {
+                    val repeatCount = lastComponent.string.filter(Char::isDigit).toInt()
+                    val extractedMsg = msg.shallowCopy()
+                    extractedMsg.siblings.removeLast()
+                    return Pair(extractedMsg, repeatCount)
+                }
+            }
+        }
+        return Pair(msg, 1)
+    }
+
+    private fun Text.appendRepeatMsg(repeatCount: Int): Text = this.copy().append(
+        TranslatableText(
+            "chat.simpletabs.repeat",
+            repeatCount
+        ).setStyle(Style.EMPTY.withColor(Formatting.GRAY))
+    )
 
     fun addTab(chatTab: ChatTab) {
         pageTabs[activeGroup][chatTab.uuid] = chatTab
@@ -126,7 +167,14 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
             clear(false)
 
             // mixin invoker to avoid printing a new message to logs when switching tabs
-            tab.messages.forEach { (this as ChatHudInvoker).addMessageWithoutLog(it, 0, client.inGameHud.ticks, false) }
+            tab.messages.forEach {
+                (this as MixinHudUtility).addMessageWithoutLog(
+                    it,
+                    0,
+                    client.inGameHud.ticks,
+                    false
+                )
+            }
 
             tab.unreadCount = 0
             selectedTab = tab.uuid

@@ -9,6 +9,6 @@ object TabsMod : ModInitializer {
     val logger: Logger = LogManager.getLogger(MOD_ID)
 
     override fun onInitialize() {
-        println("$MOD_ID loaded! Note that this mod applies changes purely client-side.")
+        logger.info("$MOD_ID loaded! Note that this mod applies changes purely client-side.")
     }
 }
