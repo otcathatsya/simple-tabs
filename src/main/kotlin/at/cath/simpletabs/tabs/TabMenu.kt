@@ -72,11 +72,11 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
     private fun extractRepeatMsg(msg: Text): Pair<Text, Int> {
         with(msg.siblings) {
             if (size > 0) {
-                val lastComponent = last()
-                if (lastComponent is TranslatableText && lastComponent.key == "chat.simpletabs.repeat") {
+                val lastComponent = find { it is TranslatableText && it.key == "chat.simpletabs.repeat" }
+                if (lastComponent != null) {
                     val repeatCount = lastComponent.string.filter(Char::isDigit).toInt()
                     val extractedMsg = msg.shallowCopy()
-                    extractedMsg.siblings.removeLast()
+                    extractedMsg.siblings.removeIf { it == lastComponent }
                     return Pair(extractedMsg, repeatCount)
                 }
             }
@@ -84,12 +84,15 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
         return Pair(msg, 1)
     }
 
-    private fun Text.appendRepeatMsg(repeatCount: Int): Text = this.copy().append(
-        TranslatableText(
-            "chat.simpletabs.repeat",
-            repeatCount
-        ).setStyle(Style.EMPTY.withColor(Formatting.GRAY))
-    )
+    private fun Text.appendRepeatMsg(repeatCount: Int): Text {
+        this.siblings.add(
+            TranslatableText(
+                "chat.simpletabs.repeat",
+                repeatCount
+            ).setStyle(Style.EMPTY.withColor(Formatting.GRAY))
+        )
+        return this
+    }
 
     fun addTab(chatTab: ChatTab) {
         pageTabs[activeGroup][chatTab.uuid] = chatTab
