@@ -4,6 +4,9 @@
 build/
 out/
 classes/
+gradlew
+gradlew.bat
+gradle/
 
 # eclipse
 
