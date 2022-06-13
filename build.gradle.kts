@@ -3,7 +3,6 @@ plugins {
     val kotlinVersion: String by System.getProperties()
     kotlin("jvm").version(kotlinVersion)
     kotlin("plugin.serialization").version(kotlinVersion)
-    id("org.jetbrains.dokka").version(kotlinVersion)
 }
 base {
     val archivesBaseName: String by project
@@ -31,9 +30,9 @@ dependencies {
     val fabricKotlinVersion: String by project
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
     val libGuiVersion: String by project
-    modImplementation("io.github.cottonmc", "LibGui", libGuiVersion)
-    include("io.github.cottonmc", "LibGui", libGuiVersion)
+    modImplementation(include("io.github.cottonmc", "LibGui", libGuiVersion))
 }
+
 tasks {
     val javaVersion = JavaVersion.VERSION_17
     withType<JavaCompile> {
@@ -44,8 +43,6 @@ tasks {
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions { jvmTarget = javaVersion.toString() }
-        sourceCompatibility = javaVersion.toString()
-        targetCompatibility = javaVersion.toString()
     }
     jar { from("LICENSE") { rename { "${it}_${base.archivesName}" } } }
     processResources {
@@ -64,6 +61,7 @@ sourceSets {
     main {
         java {
             srcDir("src/main/kotlin")
+            srcDir("src/main/java")
         }
     }
 }
