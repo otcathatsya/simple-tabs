@@ -8,7 +8,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 
-class TabCreationDescription(width: Int, height: Int, tabMenu: TabMenu) : LightweightGuiDescription() {
+class TabCreationDesc(width: Int, height: Int, tabMenu: TabMenu) : LightweightGuiDescription() {
     init {
         val root = TabUpdatePanel(width, height, null)
         setRootPanel(root)

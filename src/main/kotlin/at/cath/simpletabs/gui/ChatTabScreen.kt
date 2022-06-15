@@ -1,8 +1,7 @@
 package at.cath.simpletabs.gui
 
-import at.cath.simpletabs.gui.settings.SettingsDescription
-import at.cath.simpletabs.gui.settings.TabCreationDescription
-import at.cath.simpletabs.gui.settings.TabUIScreen
+import at.cath.simpletabs.gui.settings.TabSettingsDesc
+import at.cath.simpletabs.gui.settings.TabCreationDesc
 import at.cath.simpletabs.tabs.TabMenu
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.text.Text
@@ -70,7 +69,7 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
                         }
 
                         override fun onRightClick() {
-                            client?.setScreen(TabUIScreen(SettingsDescription(tab)))
+                            client?.setScreen(TabUIScreen(TabSettingsDesc(tab)))
                         }
 
                         override fun onMouseMiddleClick() {
@@ -108,7 +107,7 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
                 clickCallback =
                 object : MouseActionCallback {
                     override fun onLeftClick() {
-                        client?.setScreen(TabUIScreen(TabCreationDescription(256, 100, tabMenu)))
+                        client?.setScreen(TabUIScreen(TabCreationDesc(256, 100, tabMenu)))
                     }
                 }
             )

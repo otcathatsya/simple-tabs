@@ -1,4 +1,4 @@
-package at.cath.simpletabs.gui.settings
+package at.cath.simpletabs.gui
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing
 import io.github.cottonmc.cotton.gui.widget.WWidget

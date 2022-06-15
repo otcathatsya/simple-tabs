@@ -14,13 +14,14 @@ import java.io.File
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 
+
 object ClientTabsMod : ClientModInitializer {
 
-    private val TABS_PATH = "${FabricLoader.getInstance().configDir}/${TabsMod.MOD_ID}"
+    private val TABS_PATH = "${FabricLoader.getInstance().configDir}/${TabsMod.MOD_ID}/tabs.json"
 
     override fun onInitializeClient() {
-        val configFile = File("$TABS_PATH/tabs.json")
-        if(!configFile.exists()) {
+        val configFile = File(TABS_PATH)
+        if (!configFile.exists()) {
             Path(TABS_PATH).createDirectories()
             configFile.createNewFile()
         }
@@ -39,6 +40,5 @@ object ClientTabsMod : ClientModInitializer {
                 }
             }
         })
-
     }
 }
