@@ -1,10 +1,13 @@
 package at.cath.simpletabs.gui
 
+import at.cath.simpletabs.mixins.MixinSuggestorAccessor
+import at.cath.simpletabs.mixins.MixinSuggestorState
 import at.cath.simpletabs.tabs.CONTROL_ELEMENT
 import at.cath.simpletabs.tabs.ChatTab
 import at.cath.simpletabs.utility.SimpleColour
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
+import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 
@@ -30,32 +33,43 @@ class TabButton(
     ), TabGUIComponent {
 
     override fun renderButton(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-        super.renderButton(matrices, mouseX, mouseY, delta)
         val minecraftClient = MinecraftClient.getInstance()
-        val textRenderer = minecraftClient.textRenderer
+        val screen = minecraftClient.currentScreen
+        if (screen is ChatScreen) {
+            if (((screen as MixinSuggestorAccessor).commandSuggestor as MixinSuggestorState).suggestionWindow == null) {
+                super.renderButton(matrices, mouseX, mouseY, delta)
+                val textRenderer = minecraftClient.textRenderer
+                if (tab != null) {
+                    if (tab.unreadCount > 0) {
+                        val startX = x + width - 4
+                        val startY = y + 4
 
-        if (tab != null) {
-            if (tab.unreadCount > 0) {
-                val startX = x + width - 4
-                val startY = y + 4
+                        DrawableHelper.fill(
+                            matrices,
+                            startX,
+                            startY,
+                            startX + 6,
+                            startY - 6,
+                            SimpleColour.RED.packedRgb
+                        )
 
-                DrawableHelper.fill(matrices, startX, startY, startX + 6, startY - 6, SimpleColour.RED.packedRgb)
+                        val startXScaled = startX / 0.5
+                        val startYScaled = startY / 0.5
 
-                val startXScaled = startX / 0.5
-                val startYScaled = startY / 0.5
+                        matrices.push()
+                        matrices.scale(0.5f, 0.5f, 1.0f)
 
-                matrices.push()
-                matrices.scale(0.5f, 0.5f, 1.0f)
-
-                DrawableHelper.drawCenteredText(
-                    matrices,
-                    textRenderer,
-                    Text.of("${tab.unreadCount}"),
-                    startXScaled.toInt() + 6,
-                    startYScaled.toInt() - 9,
-                    SimpleColour.WHITE.packedRgb
-                )
-                matrices.pop()
+                        DrawableHelper.drawCenteredText(
+                            matrices,
+                            textRenderer,
+                            Text.of("${tab.unreadCount}"),
+                            startXScaled.toInt() + 6,
+                            startYScaled.toInt() - 9,
+                            SimpleColour.WHITE.packedRgb
+                        )
+                        matrices.pop()
+                    }
+                }
             }
         }
     }
