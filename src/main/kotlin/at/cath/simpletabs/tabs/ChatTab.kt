@@ -50,7 +50,7 @@ class ChatTab(
     fun acceptsMessage(input: String): Boolean = regExp.containsMatchIn(input) == !inverted
 
     @kotlinx.serialization.Serializable
-    // if source language is left empty, all non-target language input will be translated
-    class TranslationTarget(val sourceLanguage: String, val targetLanguage: String)
+    // to be expanded
+    class TranslationTarget(val targetLanguage: String)
 
 }

@@ -14,16 +14,10 @@
   "icon": "assets/simpletabs/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      {
-        "adapter": "kotlin",
-        "value": "at.cath.simpletabs.TabsMod"
-      }
-    ],
     "client": [
       {
         "adapter": "kotlin",
-        "value": "at.cath.simpletabs.ClientTabsMod"
+        "value": "at.cath.simpletabs.TabsMod"
       }
     ]
   },

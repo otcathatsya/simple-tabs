@@ -10,36 +10,37 @@ import java.nio.file.Files
 
 object ConfigManager {
     private const val fileName = "config.json"
-    private val configFile = File("${FabricLoader.getInstance().configDir}/${TabsMod.MOD_ID}/$fileName")
+    private val configFile = File("${FabricLoader.getInstance().configDir}\\${TabsMod.MOD_ID}\\$fileName")
 
-    private var backingConfig: Config? = null
-    val config: Config
-        get() = backingConfig ?: loadConfig().also { backingConfig = it }
+    private var backingApiConfig: ApiConfig? = null
+    val apiConfig: ApiConfig
+        get() = backingApiConfig ?: loadConfig().also { backingApiConfig = it }
 
     private val format = Json {
         isLenient = true
         prettyPrint = true
     }
 
-    private fun loadConfig(): Config {
+    private fun loadConfig(): ApiConfig {
         if (Files.notExists(configFile.toPath())) {
-            save(Config())
+            configFile.parentFile.mkdirs()
+            save(ApiConfig())
         }
         return try {
             format.decodeFromString(configFile.readText())
         } catch (ex: Exception) {
             TabsMod.logger.error("Encountered an issue deserializing config, falling back to defaults")
-            Config()
+            ApiConfig()
         }
     }
 
-    fun update() {
-        backingConfig = loadConfig()
+    private fun update() {
+        backingApiConfig = loadConfig()
     }
 
-    fun save(config: Config) {
+    fun save(apiConfig: ApiConfig) {
         configFile.bufferedWriter().use { out ->
-            out.write(format.encodeToString(config))
+            out.write(format.encodeToString(apiConfig))
         }
         update()
     }

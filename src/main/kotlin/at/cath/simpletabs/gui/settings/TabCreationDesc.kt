@@ -29,5 +29,6 @@ class TabCreationDesc(width: Int, height: Int, tabMenu: TabMenu) : LightweightGu
             }
         }
         root.add(confirmButton, 6, 4, 5, 1)
+        root.validate(this)
     }
 }

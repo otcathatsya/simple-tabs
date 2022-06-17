@@ -85,6 +85,7 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
             handleMessage(incoming)
             return
         }
+
         // don't translate this client player's messages
         if (client.inGameHud.extractSender(incoming).equals(client.player?.uuid)) {
             handleMessage(incoming)
@@ -92,6 +93,7 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
         }
 
         CoroutineScope(Dispatchers.IO).launch {
+            println(incoming)
             val response = RetrofitDeepl.api.getTranslation(incoming.string, tab.language!!.targetLanguage)
             withContext(Dispatchers.Default) {
                 if (response.isSuccessful) {

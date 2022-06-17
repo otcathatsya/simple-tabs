@@ -1,4 +1,6 @@
 {
   "chat.simpletabs.translated": "%s",
-  "chat.simpletabs.repeat": " [x%d]"
+  "chat.simpletabs.repeat": " [x%d]",
+  "menu.simpletabs.category": "Simple Tabs",
+  "menu.simpletabs.settings": "Configure DeepL key"
 }
