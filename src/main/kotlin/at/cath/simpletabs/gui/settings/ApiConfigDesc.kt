@@ -14,7 +14,6 @@ import io.github.cottonmc.cotton.gui.widget.data.Insets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.minecraft.text.Text
 
 class ApiConfigDesc : LightweightGuiDescription() {
@@ -41,15 +40,13 @@ class ApiConfigDesc : LightweightGuiDescription() {
             val apiKey = apiKeyInput.text
             CoroutineScope(Dispatchers.IO).launch {
                 val validKey = RetrofitDeepl.verifyKey(apiKey)
-                withContext(Dispatchers.Default) {
-                    if (validKey) {
-                        apiKeyLabel.text = Text.of("Success! You may close this window now.")
-                        apiKeyLabel.color = Color.GREEN_DYE.toRgb()
-                        ConfigManager.save(config.setApiKey(apiKey))
-                    } else {
-                        apiKeyLabel.text = Text.of("Something went wrong; is the key valid?")
-                        apiKeyLabel.color = Color.RED_DYE.toRgb()
-                    }
+                if (validKey) {
+                    apiKeyLabel.text = Text.of("Success! You may close this window now.")
+                    apiKeyLabel.color = Color.GREEN_DYE.toRgb()
+                    ConfigManager.save(config.setApiKey(apiKey))
+                } else {
+                    apiKeyLabel.text = Text.of("Something went wrong; is the key valid?")
+                    apiKeyLabel.color = Color.RED_DYE.toRgb()
                 }
             }
         }
