@@ -14,6 +14,7 @@ class ChatTab(
     var muted: Boolean = false,
     var uuid: String = UUID.randomUUID().toString(),
     var literal: Boolean = false,
+    var prefix: String = "",
     var language: TranslationTarget = TranslationTarget()
 ) {
     @Transient
@@ -36,6 +37,7 @@ class ChatTab(
         muted: Boolean = this.muted,
         literal: Boolean = this.literal,
         inverted: Boolean = this.inverted,
+        prefix: String = this.prefix,
         language: TranslationTarget = this.language
     ) {
         this.name = name
@@ -44,6 +46,7 @@ class ChatTab(
         this.inverted = inverted
         this.literal = literal
         this.language = language
+        this.prefix = prefix
         this.regExp = compileRegex(regex, literal)
     }
 

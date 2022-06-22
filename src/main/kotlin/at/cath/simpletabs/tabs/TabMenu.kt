@@ -95,7 +95,7 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
 
         if (relativeMsg != null) {
             val (index, incoming) = getMessageAt(x, y)!!
-            val tab = pageTabs[activeGroup][selectedTab]!!
+            val tab = getSelectedTab()
 
             // don't translate when tab is not set to
             if (tab.language.targetLanguage.isEmpty()) {
@@ -216,6 +216,8 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
             selectedTab = tab.uuid
         }
     }
+
+    fun getSelectedTab() : ChatTab = pageTabs[activeGroup][selectedTab]!!
 
     private fun getMessageAt(x: Double, y: Double): Pair<Int, Text>? {
         return if (client.currentScreen is ChatTabScreen && !this.client.options.hudHidden && client.options.chatVisibility != ChatVisibility.HIDDEN) {

@@ -19,6 +19,7 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
 
     lateinit var inputName: WTextField
     lateinit var inputRegex: WTextField
+    lateinit var inputPrefix: WTextField
     lateinit var toggleInverted: WToggleButton
     lateinit var toggleMuted: WToggleButton
     lateinit var toggleLiteral: WToggleButton
@@ -45,6 +46,10 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
         inputTargetLanguage = WTextField()
         inputTargetLanguage.maxLength = 2
 
+        val inputPrefixLabel = WLabel(Text.of("Prefix"))
+        inputPrefix = WTextField()
+        inputPrefix.maxLength = 30
+
         toggleInverted = WToggleButton(Text.of("Inverted?"))
         toggleMuted = WToggleButton(Text.of("Muted?"))
         toggleLiteral = WToggleButton(Text.of("Match literal?"))
@@ -57,6 +62,7 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
 
                 inputName.text = name
                 inputRegex.text = regex
+                inputPrefix.text = prefix
 
                 inputTargetLanguage.text = language.targetLanguage
             }
@@ -67,6 +73,9 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
 
         add(inputRegexLabel, 0, 3, 1, 1)
         add(inputRegex, 0, 4, 5, 1)
+
+        add(inputPrefixLabel, 6, 3, 1, 1)
+        add(inputPrefix, 6, 4, 5, 1)
 
         add(inputTargetLanguageLabel, 0, 6, 5, 1)
         add(inputTargetLanguage, 0, 7, 2, 1)
@@ -92,7 +101,8 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
                 name = inputName.text, regex = inputRegex.text,
                 inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
                 literal = toggleLiteral.toggle,
-                language = ChatTab.TranslationTarget(inputTargetLanguage.text)
+                language = ChatTab.TranslationTarget(inputTargetLanguage.text),
+                prefix = inputPrefix.text
             )
             return ActionResult.PASS
         } else {

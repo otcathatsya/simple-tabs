@@ -9,6 +9,7 @@
     "MixinHudAccessor",
     "MixinHudUtility",
     "MixinInfiniteHistory",
+    "MixinPrefixChat",
     "MixinScreenInjector",
     "MixinSuggestorAccessor",
     "MixinSuggestorState"
