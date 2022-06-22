@@ -1,9 +1,9 @@
 package at.cath.simpletabs.gui
 
-import at.cath.simpletabs.gui.settings.SettingsDescription
-import at.cath.simpletabs.gui.settings.TabCreationDescription
-import at.cath.simpletabs.gui.settings.TabUIScreen
+import at.cath.simpletabs.gui.settings.TabCreationDesc
+import at.cath.simpletabs.gui.settings.TabSettingsDesc
 import at.cath.simpletabs.tabs.TabMenu
+import io.github.cottonmc.cotton.gui.client.CottonClientScreen
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.text.Text
 import kotlin.properties.Delegates
@@ -31,6 +31,13 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
         } ?: throw IllegalStateException("ChatHUD is not custom; cannot initialize tabs screen")
 
         drawUI()
+    }
+
+    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        if (MouseAction.create(button) == MouseAction.RIGHT_CLICK) {
+            tabMenu.handleClickTranslation(mouseX, mouseY)
+        }
+        return super.mouseClicked(mouseX, mouseY, button)
     }
 
     private fun drawUI() {
@@ -70,7 +77,7 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
                         }
 
                         override fun onRightClick() {
-                            client?.setScreen(TabUIScreen(SettingsDescription(tab)))
+                            client?.setScreen(CottonClientScreen(TabSettingsDesc(tab)))
                         }
 
                         override fun onMouseMiddleClick() {
@@ -108,7 +115,7 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
                 clickCallback =
                 object : MouseActionCallback {
                     override fun onLeftClick() {
-                        client?.setScreen(TabUIScreen(TabCreationDescription(256, 100, tabMenu)))
+                        client?.setScreen(CottonClientScreen(TabCreationDesc(256, 100, tabMenu)))
                     }
                 }
             )

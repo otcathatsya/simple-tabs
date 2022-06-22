@@ -1,16 +1,27 @@
 package at.cath.simpletabs.tabs
 
 import at.cath.simpletabs.TabsMod
+import at.cath.simpletabs.gui.ChatTabScreen
 import at.cath.simpletabs.mixins.MixinHudUtility
+import at.cath.simpletabs.translate.RetrofitDeepl
+import at.cath.simpletabs.utility.SimpleColour
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.hud.ChatHud
+import net.minecraft.client.gui.hud.ChatHudLine
+import net.minecraft.client.option.ChatVisibility
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
+import net.minecraft.util.math.MathHelper
+import java.util.*
 import kotlin.math.min
+
 
 class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud(client) {
 
@@ -21,6 +32,9 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
     val showPerPage = 4
     var pageTabs = mutableListOf(linkedMapOf<String, ChatTab>())
 
+    private val visibleMessages = (this as MixinHudUtility).visibleMessages
+    private val localMessageHistory = (this as MixinHudUtility).localMessageHistory
+
     init {
         if (serialized != null) {
             try {
@@ -29,6 +43,7 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
                 TabsMod.logger.error("Encountered invalid tabs config format")
             }
         }
+
         if (pageTabs.all { it.isEmpty() }) {
             val defaultTab = ChatTab("General")
             pageTabs[0] = linkedMapOf(defaultTab.uuid to defaultTab)
@@ -42,56 +57,76 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
         pageTabs.forEach { tabMap ->
             tabMap.values.forEach {
                 var repeatCount = 0
-                var incoming = message
-                if (it.acceptsMessage(incoming.string)) {
+                if (it.acceptsMessage(message.string)) {
+                    val incoming = message.shallowCopy()
+
                     if (it.messages.isNotEmpty()) {
                         val (extractedMsg, repeats) = extractRepeatMsg(it.messages.last())
-                        if (incoming.string == extractedMsg.string) {
+                        if (message.string == extractedMsg.string) {
                             repeatCount = repeats
                             repeatCount += 1
                         }
                     }
 
                     if (repeatCount > 0)
-                        incoming = incoming.appendRepeatMsg(repeatCount)
+                        incoming.appendRepeatMsg(repeatCount + 1)
 
                     if (it.uuid == selectedTab) {
-                        if (repeatCount > 0) (this as MixinHudUtility).visibleMessages.removeFirst()
+                        if (repeatCount > 0) {
+                            visibleMessages.removeFirst()
+                            localMessageHistory.removeFirst()
+                        }
                         super.addMessage(incoming)
-                    } else if (!it.muted) {
+
+                    } else if (!it.muted && pageTabs[activeGroup].containsKey(it.uuid)) {
                         it.unreadCount++
                     }
 
                     if (repeatCount > 0) it.messages.removeLast()
                     it.messages += incoming
+
                 }
             }
         }
     }
 
-    private fun extractRepeatMsg(msg: Text): Pair<Text, Int> {
-        with(msg.siblings) {
-            if (size > 0) {
-                val lastComponent = find { it is TranslatableText && it.key == "chat.simpletabs.repeat" }
-                if (lastComponent != null) {
-                    val repeatCount = lastComponent.string.filter(Char::isDigit).toInt()
-                    val extractedMsg = msg.shallowCopy()
-                    extractedMsg.siblings.removeIf { it == lastComponent }
-                    return Pair(extractedMsg, repeatCount)
+    fun handleClickTranslation(x: Double, y: Double) {
+        val relativeMsg = getMessageAt(x, y)
+
+        if (relativeMsg != null) {
+            val (index, incoming) = getMessageAt(x, y)!!
+            val tab = getSelectedTab()
+
+            // don't translate when tab is not set to
+            if (tab.language.targetLanguage.isEmpty()) {
+                return
+            }
+
+            // don't translate if already translated
+            if (incoming is TranslatableText && incoming.key == "chat.simpletabs.translated") {
+                return
+            }
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val response = RetrofitDeepl.api.getTranslation(incoming.string, tab.language.targetLanguage)
+                if (response.isSuccessful) {
+                    val translation = Text.of(response.body()!!.translations[0].translatedText)
+                    val formattedTranslation =
+                        TranslatableText(
+                            "chat.simpletabs.translated",
+                            tab.language.targetLanguage.uppercase(),
+                            translation
+                        )
+                            .setStyle(Style.EMPTY.withColor(SimpleColour(128, 27, 87, 255).packedRgb))
+
+                    visibleMessages[index] =
+                        ChatHudLine(client.inGameHud.ticks, formattedTranslation.asOrderedText(), 0)
+                    localMessageHistory[index] = ChatHudLine(client.inGameHud.ticks, formattedTranslation, 0)
+                } else {
+                    TabsMod.logger.error("Encountered error code ${response.code()} when fetching translation: ${response.message()}")
                 }
             }
         }
-        return Pair(msg, 1)
-    }
-
-    private fun Text.appendRepeatMsg(repeatCount: Int): Text {
-        this.siblings.add(
-            TranslatableText(
-                "chat.simpletabs.repeat",
-                repeatCount
-            ).setStyle(Style.EMPTY.withColor(Formatting.GRAY))
-        )
-        return this
     }
 
     fun addTab(chatTab: ChatTab) {
@@ -143,11 +178,9 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
             selectedTab = ""
             clear(false)
             return true
-        } else if (pageTabs[activeGroup].size > 1) {
-            val defaultTab = ChatTab("General")
-            pageTabs.add(++activeGroup, linkedMapOf(defaultTab.uuid to defaultTab))
+        } else if (pageTabs[activeGroup].size > 0) {
+            pageTabs.add(++activeGroup, linkedMapOf())
 
-            navigateTo(defaultTab.uuid)
             clear(false)
             return true
         }
@@ -182,5 +215,59 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
             tab.unreadCount = 0
             selectedTab = tab.uuid
         }
+    }
+
+    fun getSelectedTab() : ChatTab = pageTabs[activeGroup][selectedTab]!!
+
+    private fun getMessageAt(x: Double, y: Double): Pair<Int, Text>? {
+        return if (client.currentScreen is ChatTabScreen && !this.client.options.hudHidden && client.options.chatVisibility != ChatVisibility.HIDDEN) {
+            var d = x - 2.0
+            var e = this.client.window.scaledHeight.toDouble() - y - 40.0
+            d = MathHelper.floor(d / this.chatScale).toDouble()
+            e = MathHelper.floor(e / (this.chatScale * (this.client.options.chatLineSpacing + 1.0))).toDouble()
+            if (d >= 0.0 && e >= 0.0) {
+                val i = this.visibleLineCount.coerceAtMost(visibleMessages.size)
+                if (d <= MathHelper.floor(this.width.toDouble() / this.chatScale).toDouble()) {
+                    Objects.requireNonNull(this.client.textRenderer)
+                    if (e < (9 * i + i).toDouble()) {
+                        Objects.requireNonNull(this.client.textRenderer)
+                        val j = (e / 9.0 + (this as MixinHudUtility).scrolledLines.toDouble()).toInt()
+                        if (j >= 0 && j < visibleMessages.size) {
+                            return Pair(j, localMessageHistory[j].text)
+                        }
+                    }
+                }
+                null
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+    }
+
+    private fun extractRepeatMsg(msg: Text): Pair<Text, Int> {
+        with(msg.siblings) {
+            if (size > 0) {
+                val lastComponent = find { it is TranslatableText && it.key == "chat.simpletabs.repeat" }
+                if (lastComponent != null) {
+                    val repeatCount = lastComponent.string.filter(Char::isDigit).toInt() - 1
+                    val extractedMsg = msg.shallowCopy()
+                    extractedMsg.siblings.removeIf { it == lastComponent }
+                    return Pair(extractedMsg, repeatCount)
+                }
+            }
+        }
+        return Pair(msg, 0)
+    }
+
+    private fun Text.appendRepeatMsg(repeatCount: Int): Text {
+        this.siblings.add(
+            TranslatableText(
+                "chat.simpletabs.repeat",
+                repeatCount
+            ).setStyle(Style.EMPTY.withColor(Formatting.GRAY))
+        )
+        return this
     }
 }

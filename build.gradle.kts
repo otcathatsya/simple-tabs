@@ -30,7 +30,18 @@ dependencies {
     val fabricKotlinVersion: String by project
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
     val libGuiVersion: String by project
+
+    // 3rd party mods, UI
     modImplementation(include("io.github.cottonmc", "LibGui", libGuiVersion))
+
+    // Web libs
+    val okhttpVersion: String by project
+    include(implementation("com.squareup.okhttp3", "okhttp", okhttpVersion))
+    include(implementation("com.squareup.okhttp3", "logging-interceptor", okhttpVersion))
+    val retrofitVersion: String by project
+    include(implementation("com.squareup.retrofit2", "retrofit", retrofitVersion))
+    val ktConverterVersion: String by project
+    include(implementation("com.jakewharton.retrofit", "retrofit2-kotlinx-serialization-converter", ktConverterVersion))
 }
 
 tasks {

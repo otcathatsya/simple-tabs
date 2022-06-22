@@ -8,7 +8,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 
-class TabCreationDescription(width: Int, height: Int, tabMenu: TabMenu) : LightweightGuiDescription() {
+class TabCreationDesc(width: Int, height: Int, tabMenu: TabMenu) : LightweightGuiDescription() {
     init {
         val root = TabUpdatePanel(width, height, null)
         setRootPanel(root)
@@ -19,9 +19,13 @@ class TabCreationDescription(width: Int, height: Int, tabMenu: TabMenu) : Lightw
                 if (root.onClose() == ActionResult.PASS) {
                     tabMenu.addTab(
                         ChatTab(
-                            name = inputName.text, regex = inputRegex.text,
-                            inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
-                            literal = toggleLiteral.toggle
+                            name = inputName.text,
+                            regex = inputRegex.text,
+                            inverted = toggleInverted.toggle,
+                            muted = toggleMuted.toggle,
+                            literal = toggleLiteral.toggle,
+                            language = ChatTab.TranslationTarget(inputTargetLanguage.text),
+                            prefix = inputPrefix.text
                         )
                     )
                     MinecraftClient.getInstance().setScreen(null)
@@ -29,5 +33,6 @@ class TabCreationDescription(width: Int, height: Int, tabMenu: TabMenu) : Lightw
             }
         }
         root.add(confirmButton, 6, 4, 5, 1)
+        root.validate(this)
     }
 }

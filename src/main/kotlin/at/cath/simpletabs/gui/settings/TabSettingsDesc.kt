@@ -13,7 +13,7 @@ import net.minecraft.item.Items
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 
-class SettingsDescription(tab: ChatTab) : LightweightGuiDescription() {
+class TabSettingsDesc(tab: ChatTab) : LightweightGuiDescription() {
 
     init {
         val root = WGridPanel()

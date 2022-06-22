@@ -1,10 +1,10 @@
 package at.cath.simpletabs.gui.settings
 
+import at.cath.simpletabs.gui.WDynamicColourLabel
 import at.cath.simpletabs.tabs.ChatTab
 import at.cath.simpletabs.utility.SimpleColour
 import io.github.cottonmc.cotton.gui.widget.WGridPanel
-import io.github.cottonmc.cotton.gui.widget.WLabel
-import io.github.cottonmc.cotton.gui.widget.WSlider
+import io.github.cottonmc.cotton.gui.widget.WLabeledSlider
 import io.github.cottonmc.cotton.gui.widget.WTextField
 import io.github.cottonmc.cotton.gui.widget.data.Axis
 import io.github.cottonmc.cotton.gui.widget.data.Insets
@@ -15,13 +15,13 @@ import net.minecraft.util.ActionResult
 class TabDesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridPanel(), SaveSettingsCallback {
 
     private lateinit var inputBackgroundColHex: WTextField
-    private lateinit var bgTransparencySlider: WSlider
+    private lateinit var bgTransparencySlider: WLabeledSlider
 
     private lateinit var inputOutlineColHex: WTextField
-    private lateinit var outlineTransparencySlider: WSlider
+    private lateinit var outlineTransparencySlider: WLabeledSlider
 
     private lateinit var inputTextColHex: WTextField
-    private lateinit var textTransparencySlider: WSlider
+    private lateinit var textTransparencySlider: WLabeledSlider
 
     init {
         insets = Insets.ROOT_PANEL
@@ -34,7 +34,7 @@ class TabDesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridP
             inputBackgroundColHex = WTextField()
             inputBackgroundColHex.text = backgroundColour.asHexString()
 
-            bgTransparencySlider = WSlider(0, 255, Axis.HORIZONTAL)
+            bgTransparencySlider = WLabeledSlider(0, 255, Axis.HORIZONTAL, Text.of("Background Transparency"))
             bgTransparencySlider.value = backgroundColour.alpha
 
             val inputBgColLabel = WDynamicColourLabel("Background Colour") {
@@ -42,13 +42,13 @@ class TabDesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridP
             }
 
             add(inputBgColLabel, 0, 0, 4, 1)
-            add(inputBackgroundColHex, 0, 1, 4, 1)
-            add(bgTransparencySlider, 6, 1, 3, 1)
+            add(inputBackgroundColHex, 0, 1, 3, 1)
+            add(bgTransparencySlider, 4, 1, 8, 1)
 
             inputOutlineColHex = WTextField()
             inputOutlineColHex.text = outlineColour.asHexString()
 
-            outlineTransparencySlider = WSlider(0, 255, Axis.HORIZONTAL)
+            outlineTransparencySlider = WLabeledSlider(0, 255, Axis.HORIZONTAL, Text.of("Outline Transparency"))
             outlineTransparencySlider.value = outlineColour.alpha
 
             val inputOutlineColLabel = WDynamicColourLabel("Outline Colour") {
@@ -56,13 +56,13 @@ class TabDesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridP
             }
 
             add(inputOutlineColLabel, 0, 3, 4, 1)
-            add(inputOutlineColHex, 0, 4, 4, 1)
-            add(outlineTransparencySlider, 6, 4, 3, 1)
+            add(inputOutlineColHex, 0, 4, 3, 1)
+            add(outlineTransparencySlider, 4, 4, 8, 1)
 
             inputTextColHex = WTextField()
             inputTextColHex.text = textColour.asHexString()
 
-            textTransparencySlider = WSlider(0, 255, Axis.HORIZONTAL)
+            textTransparencySlider = WLabeledSlider(0, 255, Axis.HORIZONTAL, Text.of("Text Transparency"))
             textTransparencySlider.value = textColour.alpha
 
             val inputTextColLabel = WDynamicColourLabel("Text Colour") {
@@ -70,11 +70,8 @@ class TabDesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridP
             }
 
             add(inputTextColLabel, 0, 6, 4, 1)
-            add(inputTextColHex, 0, 7, 4, 1)
-            add(textTransparencySlider, 6, 7, 3, 1)
-
-            val inputTransparencyLabel = WLabel(Text.of("Transparency"))
-            add(inputTransparencyLabel, 6, 0, 3, 1)
+            add(inputTextColHex, 0, 7, 3, 1)
+            add(textTransparencySlider, 4, 7, 8, 1)
         }
     }
 

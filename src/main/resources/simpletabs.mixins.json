@@ -5,10 +5,13 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "mixins": [
+  "client": [
     "MixinHudAccessor",
     "MixinHudUtility",
     "MixinInfiniteHistory",
-    "MixinScreenInjector"
+    "MixinPrefixChat",
+    "MixinScreenInjector",
+    "MixinSuggestorAccessor",
+    "MixinSuggestorState"
   ]
 }
