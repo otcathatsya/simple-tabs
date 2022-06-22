@@ -39,11 +39,11 @@ open class SimpleButton(
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         if (clicked(mouseX, mouseY)) {
-            when (button) {
-                0 -> clickCallback.onLeftClick()
-                1 -> clickCallback.onRightClick()
-                2 -> clickCallback.onMouseMiddleClick()
-                else -> return false
+            val action = MouseAction.create(button) ?: return false
+            when (action) {
+                MouseAction.LEFT_CLICK -> clickCallback.onLeftClick()
+                MouseAction.RIGHT_CLICK -> clickCallback.onRightClick()
+                MouseAction.MIDDLE_MOUSE -> clickCallback.onMouseMiddleClick()
             }
             playDownSound(MinecraftClient.getInstance().soundManager)
             return true

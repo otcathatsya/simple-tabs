@@ -10,6 +10,7 @@ import io.github.cottonmc.cotton.gui.widget.WToggleButton
 import io.github.cottonmc.cotton.gui.widget.data.Insets
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
+import java.util.*
 import java.util.regex.PatternSyntaxException
 
 class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
@@ -21,7 +22,6 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
     lateinit var toggleInverted: WToggleButton
     lateinit var toggleMuted: WToggleButton
     lateinit var toggleLiteral: WToggleButton
-
     lateinit var inputTargetLanguage: WTextField
 
     private val apiConfig: ApiConfig
@@ -41,7 +41,7 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
         inputRegex = WTextField()
         inputRegex.maxLength = 200
 
-        val inputSourceLanguageLabel = WLabel(Text.of("Target Language"))
+        val inputTargetLanguageLabel = WLabel(Text.of("Target Language"))
         inputTargetLanguage = WTextField()
         inputTargetLanguage.maxLength = 2
 
@@ -58,9 +58,7 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
                 inputName.text = name
                 inputRegex.text = regex
 
-                if (language != null) {
-                    inputTargetLanguage.text = language!!.targetLanguage
-                }
+                inputTargetLanguage.text = language.targetLanguage
             }
         }
 
@@ -70,7 +68,7 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
         add(inputRegexLabel, 0, 3, 1, 1)
         add(inputRegex, 0, 4, 5, 1)
 
-        add(inputSourceLanguageLabel, 0, 6, 5, 1)
+        add(inputTargetLanguageLabel, 0, 6, 5, 1)
         add(inputTargetLanguage, 0, 7, 2, 1)
 
         add(toggleInverted, 6, 0, 1, 1)
@@ -80,7 +78,10 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
 
     override fun onClose(): ActionResult {
         if (inputName.text.isNotEmpty()
-            && inputRegex.text.isNotEmpty() && (toggleLiteral.toggle || try {
+            && inputRegex.text.isNotEmpty()
+            && Locale.getISOLanguages()
+                .contains(inputTargetLanguage.text.lowercase()) || inputTargetLanguage.text.isEmpty()
+            && (toggleLiteral.toggle || try {
                 inputRegex.text.toRegex()
                 true
             } catch (ex: PatternSyntaxException) {
@@ -91,11 +92,8 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
                 name = inputName.text, regex = inputRegex.text,
                 inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
                 literal = toggleLiteral.toggle,
-                language = if (inputTargetLanguage.text.isEmpty()) null else ChatTab.TranslationTarget(
-                    inputTargetLanguage.text
-                )
+                language = ChatTab.TranslationTarget(inputTargetLanguage.text)
             )
-
             return ActionResult.PASS
         } else {
             return ActionResult.FAIL

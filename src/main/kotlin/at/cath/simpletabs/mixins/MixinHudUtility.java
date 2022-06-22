@@ -17,4 +17,11 @@ public interface MixinHudUtility {
 
     @Accessor("visibleMessages")
     List<ChatHudLine<OrderedText>> getVisibleMessages();
+
+    @Accessor("messages")
+    List<ChatHudLine<Text>> getLocalMessageHistory();
+
+    @Accessor("scrolledLines")
+    int getScrolledLines();
+
 }

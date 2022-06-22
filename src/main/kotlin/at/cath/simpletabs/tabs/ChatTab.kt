@@ -5,6 +5,7 @@ import kotlinx.serialization.Transient
 import net.minecraft.text.Text
 import java.util.*
 
+
 @kotlinx.serialization.Serializable
 class ChatTab(
     var name: String,
@@ -13,9 +14,8 @@ class ChatTab(
     var muted: Boolean = false,
     var uuid: String = UUID.randomUUID().toString(),
     var literal: Boolean = false,
-    var language: TranslationTarget? = null
+    var language: TranslationTarget = TranslationTarget()
 ) {
-
     @Transient
     private var regExp: Regex = compileRegex(regex, literal)
 
@@ -36,7 +36,7 @@ class ChatTab(
         muted: Boolean = this.muted,
         literal: Boolean = this.literal,
         inverted: Boolean = this.inverted,
-        language: TranslationTarget? = null
+        language: TranslationTarget = this.language
     ) {
         this.name = name
         this.regex = regex
@@ -50,7 +50,5 @@ class ChatTab(
     fun acceptsMessage(input: String): Boolean = regExp.containsMatchIn(input) == !inverted
 
     @kotlinx.serialization.Serializable
-    // to be expanded
-    class TranslationTarget(val targetLanguage: String)
-
+    class TranslationTarget(val targetLanguage: String = "")
 }

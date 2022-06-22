@@ -21,7 +21,7 @@ class TabCreationDesc(width: Int, height: Int, tabMenu: TabMenu) : LightweightGu
                         ChatTab(
                             name = inputName.text, regex = inputRegex.text,
                             inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
-                            literal = toggleLiteral.toggle
+                            literal = toggleLiteral.toggle, language = ChatTab.TranslationTarget(inputTargetLanguage.text)
                         )
                     )
                     MinecraftClient.getInstance().setScreen(null)
