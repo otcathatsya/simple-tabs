@@ -24,7 +24,10 @@ public class MixinPrefixChat {
         ci.cancel();
         var prefix = "";
         if (client.inGameHud.getChatHud() instanceof TabMenu tabMenu) {
-            prefix = tabMenu.getSelectedTab().getPrefix();
+            var selectedTab = tabMenu.getSelectedTab();
+            if (selectedTab != null) {
+                prefix = selectedTab.getPrefix();
+            }
         }
         ((ClientPlayerEntity) (Object) this).networkHandler.sendPacket(new ChatMessageC2SPacket(prefix + message));
     }

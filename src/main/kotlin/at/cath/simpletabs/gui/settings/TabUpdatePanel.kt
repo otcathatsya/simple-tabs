@@ -88,8 +88,8 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
     override fun onClose(): ActionResult {
         if (inputName.text.isNotEmpty()
             && inputRegex.text.isNotEmpty()
-            && Locale.getISOLanguages()
-                .contains(inputTargetLanguage.text.lowercase()) || inputTargetLanguage.text.isEmpty()
+            && (Locale.getISOLanguages()
+                .contains(inputTargetLanguage.text.lowercase()) || inputTargetLanguage.text.isEmpty())
             && (toggleLiteral.toggle || try {
                 inputRegex.text.toRegex()
                 true

@@ -14,6 +14,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.hud.ChatHud
 import net.minecraft.client.gui.hud.ChatHudLine
 import net.minecraft.client.option.ChatVisibility
+import net.minecraft.client.util.ChatMessages
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
@@ -94,19 +95,21 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
         val relativeMsg = getMessageAt(x, y)
 
         if (relativeMsg != null) {
-            val (index, incoming) = getMessageAt(x, y)!!
-            val tab = getSelectedTab()
+            val (indexWhole, indexVisible) = relativeMsg
+            val tab = getSelectedTab()!!
 
             // don't translate when tab is not set to
             if (tab.language.targetLanguage.isEmpty()) {
                 return
             }
 
+            val incoming = localMessageHistory[indexWhole].text
+
             // don't translate if already translated
             if (incoming is TranslatableText && incoming.key == "chat.simpletabs.translated") {
                 return
             }
-
+            val chatWidth = MathHelper.floor(this.width.toDouble() / this.chatScale)
             CoroutineScope(Dispatchers.IO).launch {
                 val response = RetrofitDeepl.api.getTranslation(incoming.string, tab.language.targetLanguage)
                 if (response.isSuccessful) {
@@ -119,9 +122,40 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
                         )
                             .setStyle(Style.EMPTY.withColor(SimpleColour(128, 27, 87, 255).packedRgb))
 
-                    visibleMessages[index] =
-                        ChatHudLine(client.inGameHud.ticks, formattedTranslation.asOrderedText(), 0)
-                    localMessageHistory[index] = ChatHudLine(client.inGameHud.ticks, formattedTranslation, 0)
+                    val lineBreakTranslation = ChatMessages.breakRenderedChatMessageLines(
+                        formattedTranslation,
+                        chatWidth,
+                        this@TabMenu.client.textRenderer
+                    )
+
+                    val lineBreakIncoming = ChatMessages.breakRenderedChatMessageLines(
+                        incoming,
+                        chatWidth,
+                        this@TabMenu.client.textRenderer
+                    )
+
+                    for ((idx, msgIdx) in (indexVisible downTo (indexVisible - lineBreakTranslation.size + 1).coerceAtMost(
+                        indexVisible - lineBreakIncoming.size + 1
+                    )).withIndex()) {
+                        if (msgIdx < 0) {
+                            visibleMessages.add(
+                                0,
+                                ChatHudLine(client.inGameHud.ticks, lineBreakTranslation[idx], 0)
+                            )
+
+                        } else if (idx >= lineBreakTranslation.size) {
+                            visibleMessages.removeAt(msgIdx)
+                        } else if (idx < lineBreakIncoming.size) {
+                            visibleMessages[msgIdx] = ChatHudLine(client.inGameHud.ticks, lineBreakTranslation[idx], 0)
+                        } else {
+                            visibleMessages.add(
+                                msgIdx + 1,
+                                ChatHudLine(client.inGameHud.ticks, lineBreakTranslation[idx], 0)
+                            )
+                        }
+                    }
+
+                    localMessageHistory[indexWhole] = ChatHudLine(client.inGameHud.ticks, formattedTranslation, 0)
                 } else {
                     TabsMod.logger.error("Encountered error code ${response.code()} when fetching translation: ${response.message()}")
                 }
@@ -140,7 +174,7 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
 
                 if (selectedTab == tabId) {
                     selectedTab = ""
-                    clear()
+                    clear(false)
                 }
                 return true
             }
@@ -217,9 +251,10 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
         }
     }
 
-    fun getSelectedTab() : ChatTab = pageTabs[activeGroup][selectedTab]!!
+    fun getSelectedTab(): ChatTab? = pageTabs[activeGroup][selectedTab]
 
-    private fun getMessageAt(x: Double, y: Double): Pair<Int, Text>? {
+    // abomination
+    private fun getMessageAt(x: Double, y: Double): Pair<Int, Int>? {
         return if (client.currentScreen is ChatTabScreen && !this.client.options.hudHidden && client.options.chatVisibility != ChatVisibility.HIDDEN) {
             var d = x - 2.0
             var e = this.client.window.scaledHeight.toDouble() - y - 40.0
@@ -231,9 +266,33 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
                     Objects.requireNonNull(this.client.textRenderer)
                     if (e < (9 * i + i).toDouble()) {
                         Objects.requireNonNull(this.client.textRenderer)
-                        val j = (e / 9.0 + (this as MixinHudUtility).scrolledLines.toDouble()).toInt()
-                        if (j >= 0 && j < visibleMessages.size) {
-                            return Pair(j, localMessageHistory[j].text)
+                        var countVisibleMsg = (e / 9.0 + (this as MixinHudUtility).scrolledLines.toDouble()).toInt()
+                        if (countVisibleMsg >= 0 && countVisibleMsg < visibleMessages.size) {
+                            val chatWidth = MathHelper.floor(this.width.toDouble() / this.chatScale)
+
+                            var countSplits = 0
+                            var countWholeMsg = 0
+
+                            run breaking@{
+                                localMessageHistory.forEachIndexed { i, msg ->
+                                    val increase = ChatMessages.breakRenderedChatMessageLines(
+                                        msg.text,
+                                        chatWidth,
+                                        this.client.textRenderer
+                                    ).size
+
+                                    if (countSplits + (increase - 1) >= countVisibleMsg) {
+                                        countWholeMsg = i
+                                        if (countSplits + (increase - 1) > countVisibleMsg) {
+                                            countVisibleMsg += (increase - 1 + (countSplits - countVisibleMsg))
+                                        }
+                                        return@breaking
+                                    }
+
+                                    countSplits += increase
+                                }
+                            }
+                            return Pair(countWholeMsg, countVisibleMsg)
                         }
                     }
                 }
