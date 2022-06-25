@@ -29,6 +29,6 @@
     "fabric": "*",
     "fabric-language-kotlin": ">=1.7.0+kotlin.1.6.0",
     "minecraft": "1.15.2",
-    "java": ">=17"
+    "java": "8"
   }
 }

@@ -1,8 +1,10 @@
 package at.cath.simpletabs.mixins;
 
 
+import at.cath.simpletabs.tabs.ChatTab;
 import at.cath.simpletabs.tabs.TabMenu;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import org.spongepowered.asm.mixin.Final;
@@ -22,9 +24,10 @@ public class MixinPrefixChat {
     @Inject(method = "sendChatMessage", at = @At(value = "HEAD"), cancellable = true)
     private void prefixChatMessage(String message, CallbackInfo ci) {
         ci.cancel();
-        var prefix = "";
-        if (client.inGameHud.getChatHud() instanceof TabMenu tabMenu) {
-            var selectedTab = tabMenu.getSelectedTab();
+        String prefix = "";
+        ChatHud chatHud = client.inGameHud.getChatHud();
+        if (chatHud instanceof TabMenu) {
+            ChatTab selectedTab = ((TabMenu) chatHud).getSelectedTab();
             if (selectedTab != null) {
                 prefix = selectedTab.getPrefix();
             }

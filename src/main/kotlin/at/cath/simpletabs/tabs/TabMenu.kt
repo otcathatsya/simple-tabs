@@ -57,7 +57,7 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
             tabMap.values.forEach {
                 var repeatCount = 0
                 if (it.acceptsMessage(message.string)) {
-                    val incoming = message.copy()
+                    val incoming = message.deepCopy()
 
                     if (it.messages.isNotEmpty()) {
                         val (extractedMsg, repeats) = extractRepeatMsg(it.messages.last())
@@ -118,9 +118,7 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
                             tab.language.targetLanguage.uppercase(),
                             translation
                         )
-                            .setStyle(
-                                Style().setColor(Formatting.LIGHT_PURPLE)
-                            )
+                            .formatted(Formatting.LIGHT_PURPLE)
 
                     val chatWidth = MathHelper.floor(this@TabMenu.width.toDouble() / this@TabMenu.chatScale)
 
@@ -129,7 +127,7 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
                         chatWidth,
                         this@TabMenu.client.textRenderer,
                         false,
-                        false
+                        true
                     )
 
                     val lineBreakIncoming = Texts.wrapLines(
@@ -137,7 +135,7 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
                         chatWidth,
                         this@TabMenu.client.textRenderer,
                         false,
-                        false
+                        true
                     )
 
                     for ((idx, msgIdx) in (indexVisible downTo (indexVisible - lineBreakTranslation.size + 1).coerceAtMost(
@@ -265,7 +263,7 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
                 val lastComponent = find { it is TranslatableText && it.key == "chat.simpletabs.repeat" }
                 if (lastComponent != null) {
                     val repeatCount = lastComponent.string.filter(Char::isDigit).toInt() - 1
-                    val extractedMsg = msg.copy()
+                    val extractedMsg = msg.deepCopy()
                     extractedMsg.siblings.removeIf { it == lastComponent }
                     return Pair(extractedMsg, repeatCount)
                 }

@@ -10,12 +10,30 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 @OptIn(ExperimentalSerializationApi::class)
 object RetrofitDeepl {
 
     private const val BASE_URL = "https://api-free.deepl.com/v2/"
+    private var sslContext: SSLContext = SSLContext.getInstance("SSL")
+
+    private val TRUST_ALL_CERTS: TrustManager = object : X509TrustManager {
+        override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+        override fun getAcceptedIssuers(): Array<X509Certificate> {
+            return arrayOf()
+        }
+    }
+
+    init {
+        sslContext.init(null, arrayOf(TRUST_ALL_CERTS), SecureRandom())
+    }
 
     val api: TranslateApi by lazy {
         val apiKey = ConfigManager.apiConfig.deeplApiKey
@@ -44,6 +62,7 @@ object RetrofitDeepl {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC)
 
         val client: OkHttpClient = OkHttpClient.Builder()
+            .sslSocketFactory(sslContext.socketFactory, TRUST_ALL_CERTS as X509TrustManager)
             .addInterceptor {
                 val originalReq = it.request()
                 val url = originalReq.url.newBuilder().addQueryParameter("auth_key", apiKey).build()
