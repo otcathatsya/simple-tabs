@@ -5,18 +5,17 @@ import at.cath.simpletabs.tabs.TabMenu
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription
 import io.github.cottonmc.cotton.gui.widget.WButton
 import net.minecraft.client.MinecraftClient
-import net.minecraft.text.Text
-import net.minecraft.util.ActionResult
+import net.minecraft.text.LiteralText
 
-class TabCreationDesc(width: Int, height: Int, tabMenu: TabMenu) : LightweightGuiDescription() {
+class CreationDesc(width: Int, height: Int, tabMenu: TabMenu) : LightweightGuiDescription() {
     init {
-        val root = TabUpdatePanel(width, height, null)
+        val root = UpdatePanel(width, height, null)
         setRootPanel(root)
 
-        val confirmButton = WButton(Text.of("Confirm"))
+        val confirmButton = WButton(LiteralText("Confirm"))
         confirmButton.setOnClick {
             with(root) {
-                if (root.onClose() == ActionResult.PASS) {
+                if (root.canSave()) {
                     tabMenu.addTab(
                         ChatTab(
                             name = inputName.text,
@@ -28,7 +27,7 @@ class TabCreationDesc(width: Int, height: Int, tabMenu: TabMenu) : LightweightGu
                             prefix = inputPrefix.text
                         )
                     )
-                    MinecraftClient.getInstance().setScreen(null)
+                    MinecraftClient.getInstance().currentScreen = null
                 }
             }
         }

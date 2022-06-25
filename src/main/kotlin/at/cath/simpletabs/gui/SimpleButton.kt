@@ -2,10 +2,8 @@ package at.cath.simpletabs.gui
 
 import at.cath.simpletabs.utility.SimpleColour
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.gui.widget.ButtonWidget.PressAction
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 
 open class SimpleButton(
@@ -18,22 +16,21 @@ open class SimpleButton(
     private val outlineColour: SimpleColour,
     private val textColour: SimpleColour,
     private val clickCallback: MouseActionCallback = object : MouseActionCallback {}
-) : ButtonWidget(x, y, width, height, message, PressAction { }) {
+) : ButtonWidget(x, y, width, height, message.string, PressAction { }) {
 
-    override fun renderButton(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+    override fun renderButton(mouseX: Int, mouseY: Int, delta: Float) {
         val minecraftClient = MinecraftClient.getInstance()
         val textRenderer = minecraftClient.textRenderer
-        DrawableHelper.fill(matrices, x, y, x + width, y + height, backgroundColour.packedRgb)
+        fill(x, y, x + width, y + height, backgroundColour.packedRgb)
 
-        drawHorizontalLine(matrices, x, x + width, y, outlineColour.packedRgb)
-        drawHorizontalLine(matrices, x, x + width, y + height, outlineColour.packedRgb)
+        fill(x, y, x + width, y, outlineColour.packedRgb)
+        fill(x, y + height, x + width, y + height, outlineColour.packedRgb)
 
-        drawVerticalLine(matrices, x, y, y + height, outlineColour.packedRgb)
-        drawVerticalLine(matrices, x + width, y, y + height, outlineColour.packedRgb)
+        fill(x, y, x, y + height, outlineColour.packedRgb)
+        fill(x + width, y, x + width, y + height, outlineColour.packedRgb)
 
-        drawCenteredText(
-            matrices, textRenderer,
-            message, x + width / 2, y + (height - 6) / 2, textColour.packedRgb
+        textRenderer.drawWithShadow(
+            message, (x + width / 2).toFloat(), (y + (height - 6) / 2).toFloat(), textColour.packedRgb
         )
     }
 

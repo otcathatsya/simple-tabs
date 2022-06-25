@@ -1,14 +1,15 @@
 package at.cath.simpletabs.gui
 
-import at.cath.simpletabs.gui.settings.TabCreationDesc
-import at.cath.simpletabs.gui.settings.TabSettingsDesc
+import at.cath.simpletabs.gui.settings.CreationDesc
+import at.cath.simpletabs.gui.settings.SelectionDesc
 import at.cath.simpletabs.tabs.TabMenu
 import io.github.cottonmc.cotton.gui.client.CottonClientScreen
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.ChatScreen
-import net.minecraft.text.Text
+import net.minecraft.text.LiteralText
 import kotlin.properties.Delegates
 
-class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
+class TabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
     private val componentPadding = 5
     private val cornerOffset = 2
     private val elementOffset = 2
@@ -23,10 +24,11 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
 
     override fun init() {
         super.init()
-        this.tabHeight = textRenderer.fontHeight + 2 * componentPadding
-        this.tabY = height - chatField.height - tabHeight - cornerOffset * 2 - 2
+        this.tabHeight = font.fontHeight + 2 * componentPadding
+        // 12 = text bar height
+        this.tabY = height - 12 - tabHeight - cornerOffset * 2 - 2
 
-        (client?.inGameHud?.chatHud as? TabMenu)?.let {
+        (MinecraftClient.getInstance().inGameHud.chatHud as? TabMenu)?.let {
             tabMenu = it
         } ?: throw IllegalStateException("ChatHUD is not custom; cannot initialize tabs screen")
 
@@ -43,13 +45,13 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
     private fun drawUI() {
         clearUI()
 
-        val pageLeftBtn = addDrawableChild(
+        val pageLeftBtn = addButton(
             TabButton(
                 cornerOffset,
                 tabY,
-                textRenderer.getWidth("<") + componentPadding,
+                font.getStringWidth("<") + componentPadding,
                 tabHeight,
-                Text.of("<"),
+                LiteralText("<"),
                 clickCallback =
                 object : MouseActionCallback {
                     override fun onLeftClick() {
@@ -63,13 +65,13 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
         val tabsStartX = pageLeftBtn.x + pageLeftBtn.width + elementOffset
 
         tabs.forEachIndexed { i, tab ->
-            addDrawableChild(
+            addButton(
                 TabButton(
                     tabsStartX + i * tabWidth + if (i > 0) elementOffset * i else 0,
                     tabY,
                     tabWidth,
                     tabHeight,
-                    Text.of(textRenderer.trimToWidth(tab.name, tabButtonWidth)),
+                    LiteralText(font.trimToWidth(tab.name, tabButtonWidth)),
                     tab,
                     clickCallback = object : MouseActionCallback {
                         override fun onLeftClick() {
@@ -77,7 +79,7 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
                         }
 
                         override fun onRightClick() {
-                            client?.setScreen(CottonClientScreen(TabSettingsDesc(tab)))
+                            MinecraftClient.getInstance().openScreen(CottonClientScreen(SelectionDesc(tab)))
                         }
 
                         override fun onMouseMiddleClick() {
@@ -89,13 +91,13 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
 
         val controlStartX = tabsStartX + tabMenu.showPerPage * tabWidth + (tabMenu.showPerPage - 1) * 2 + elementOffset
 
-        val pageRightBtn = addDrawableChild(
+        val pageRightBtn = addButton(
             TabButton(
                 controlStartX,
                 tabY,
-                textRenderer.getWidth(">") + componentPadding,
+                font.getStringWidth(">") + componentPadding,
                 tabHeight,
-                Text.of(">"),
+                LiteralText(">"),
                 clickCallback =
                 object : MouseActionCallback {
                     override fun onLeftClick() {
@@ -105,29 +107,29 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
             )
         )
 
-        val addTabBtn = addDrawableChild(
+        val addTabBtn = addButton(
             TabButton(
                 pageRightBtn.x + pageRightBtn.width + 15,
                 tabY,
-                textRenderer.getWidth("+") + 2 * componentPadding,
+                font.getStringWidth("+") + 2 * componentPadding,
                 tabHeight,
-                Text.of("+"),
+                LiteralText("+"),
                 clickCallback =
                 object : MouseActionCallback {
                     override fun onLeftClick() {
-                        client?.setScreen(CottonClientScreen(TabCreationDesc(256, 100, tabMenu)))
+                        MinecraftClient.getInstance().openScreen(CottonClientScreen(CreationDesc(256, 100, tabMenu)))
                     }
                 }
             )
         )
 
-        addDrawableChild(
+        addButton(
             TabButton(
                 addTabBtn.x + addTabBtn.width + elementOffset,
                 tabY,
-                textRenderer.getWidth("${tabMenu.activeGroup}") + 2 * componentPadding,
+                font.getStringWidth("${tabMenu.activeGroup}") + 2 * componentPadding,
                 tabHeight,
-                Text.of("${tabMenu.activeGroup}"),
+                LiteralText("${tabMenu.activeGroup}"),
                 clickCallback =
                 object : MouseActionCallback {
                     override fun onLeftClick() {
@@ -143,6 +145,6 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
     }
 
     private fun clearUI() {
-        children().filterIsInstance<TabGUIComponent>().forEach(::remove)
+        children().removeAll { it is TabComponent }
     }
 }

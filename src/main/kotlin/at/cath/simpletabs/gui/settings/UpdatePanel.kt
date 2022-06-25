@@ -7,15 +7,13 @@ import io.github.cottonmc.cotton.gui.widget.WGridPanel
 import io.github.cottonmc.cotton.gui.widget.WLabel
 import io.github.cottonmc.cotton.gui.widget.WTextField
 import io.github.cottonmc.cotton.gui.widget.WToggleButton
-import io.github.cottonmc.cotton.gui.widget.data.Insets
-import net.minecraft.text.Text
-import net.minecraft.util.ActionResult
+import net.minecraft.text.LiteralText
 import java.util.*
 import java.util.regex.PatternSyntaxException
 
-class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
+class UpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
     WGridPanel(),
-    SaveSettingsCallback {
+    SaveCallback {
 
     lateinit var inputName: WTextField
     lateinit var inputRegex: WTextField
@@ -28,31 +26,30 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
     private val apiConfig: ApiConfig
 
     init {
-        insets = Insets.ROOT_PANEL
         setSize(width, height)
         apiConfig = ConfigManager.apiConfig
         drawInputWidgets()
     }
 
     private fun drawInputWidgets() {
-        val inputNameLabel = WLabel(Text.of("Tab Name"))
+        val inputNameLabel = WLabel(LiteralText("Tab Name"))
         inputName = WTextField()
 
-        val inputRegexLabel = WLabel(Text.of("Pattern"))
+        val inputRegexLabel = WLabel(LiteralText("Pattern"))
         inputRegex = WTextField()
         inputRegex.maxLength = 200
 
-        val inputTargetLanguageLabel = WLabel(Text.of("Target Language"))
+        val inputTargetLanguageLabel = WLabel(LiteralText("Target Language"))
         inputTargetLanguage = WTextField()
         inputTargetLanguage.maxLength = 2
 
-        val inputPrefixLabel = WLabel(Text.of("Prefix"))
+        val inputPrefixLabel = WLabel(LiteralText("Prefix"))
         inputPrefix = WTextField()
         inputPrefix.maxLength = 30
 
-        toggleInverted = WToggleButton(Text.of("Inverted?"))
-        toggleMuted = WToggleButton(Text.of("Muted?"))
-        toggleLiteral = WToggleButton(Text.of("Match literal?"))
+        toggleInverted = WToggleButton(LiteralText("Inverted?"))
+        toggleMuted = WToggleButton(LiteralText("Muted?"))
+        toggleLiteral = WToggleButton(LiteralText("Match literal?"))
 
         with(tab) {
             if (this != null) {
@@ -85,28 +82,28 @@ class TabUpdatePanel(width: Int, height: Int, private val tab: ChatTab?) :
         add(toggleLiteral, 6, 2, 1, 1)
     }
 
-    override fun onClose(): ActionResult {
-        if (inputName.text.isNotEmpty()
-            && inputRegex.text.isNotEmpty()
-            && (Locale.getISOLanguages()
-                .contains(inputTargetLanguage.text.lowercase()) || inputTargetLanguage.text.isEmpty())
-            && (toggleLiteral.toggle || try {
-                inputRegex.text.toRegex()
-                true
-            } catch (ex: PatternSyntaxException) {
-                false
-            })
-        ) {
-            tab?.updateSettings(
-                name = inputName.text, regex = inputRegex.text,
-                inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
-                literal = toggleLiteral.toggle,
-                language = ChatTab.TranslationTarget(inputTargetLanguage.text),
-                prefix = inputPrefix.text
-            )
-            return ActionResult.PASS
-        } else {
-            return ActionResult.FAIL
-        }
+    override fun canSave(): Boolean {
+        println("UPDATE CAN SAVE?")
+        return (inputName.text.isNotEmpty()
+                && inputRegex.text.isNotEmpty()
+                && (Locale.getISOLanguages()
+            .contains(inputTargetLanguage.text.lowercase()) || inputTargetLanguage.text.isEmpty())
+                && (toggleLiteral.toggle || try {
+            inputRegex.text.toRegex()
+            true
+        } catch (ex: PatternSyntaxException) {
+            false
+        }))
+    }
+
+    override fun save() {
+        println("UPDATE SAVE!")
+        tab?.updateSettings(
+            name = inputName.text, regex = inputRegex.text,
+            inverted = toggleInverted.toggle, muted = toggleMuted.toggle,
+            literal = toggleLiteral.toggle,
+            language = ChatTab.TranslationTarget(inputTargetLanguage.text),
+            prefix = inputPrefix.text
+        )
     }
 }

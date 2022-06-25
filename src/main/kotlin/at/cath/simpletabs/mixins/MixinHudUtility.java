@@ -2,7 +2,6 @@ package at.cath.simpletabs.mixins;
 
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -16,10 +15,10 @@ public interface MixinHudUtility {
     void addMessageWithoutLog(Text message, int messageId, int timestamp, boolean refresh);
 
     @Accessor("visibleMessages")
-    List<ChatHudLine<OrderedText>> getVisibleMessages();
+    List<ChatHudLine> getVisibleMessages();
 
     @Accessor("messages")
-    List<ChatHudLine<Text>> getLocalMessageHistory();
+    List<ChatHudLine> getLocalMessageHistory();
 
     @Accessor("scrolledLines")
     int getScrolledLines();

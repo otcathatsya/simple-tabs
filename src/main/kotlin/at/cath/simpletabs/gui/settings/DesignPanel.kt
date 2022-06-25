@@ -1,18 +1,16 @@
 package at.cath.simpletabs.gui.settings
 
-import at.cath.simpletabs.gui.WDynamicColourLabel
+import at.cath.simpletabs.gui.WColourLabel
 import at.cath.simpletabs.tabs.ChatTab
 import at.cath.simpletabs.utility.SimpleColour
 import io.github.cottonmc.cotton.gui.widget.WGridPanel
 import io.github.cottonmc.cotton.gui.widget.WLabeledSlider
 import io.github.cottonmc.cotton.gui.widget.WTextField
 import io.github.cottonmc.cotton.gui.widget.data.Axis
-import io.github.cottonmc.cotton.gui.widget.data.Insets
-import net.minecraft.text.Text
-import net.minecraft.util.ActionResult
+import net.minecraft.text.LiteralText
 
 
-class TabDesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridPanel(), SaveSettingsCallback {
+class DesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridPanel(), SaveCallback {
 
     private lateinit var inputBackgroundColHex: WTextField
     private lateinit var bgTransparencySlider: WLabeledSlider
@@ -24,7 +22,6 @@ class TabDesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridP
     private lateinit var textTransparencySlider: WLabeledSlider
 
     init {
-        insets = Insets.ROOT_PANEL
         setSize(width, height)
         drawInputWidgets()
     }
@@ -34,10 +31,10 @@ class TabDesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridP
             inputBackgroundColHex = WTextField()
             inputBackgroundColHex.text = backgroundColour.asHexString()
 
-            bgTransparencySlider = WLabeledSlider(0, 255, Axis.HORIZONTAL, Text.of("Background Transparency"))
+            bgTransparencySlider = WLabeledSlider(0, 255, Axis.HORIZONTAL, LiteralText("Background Transparency"))
             bgTransparencySlider.value = backgroundColour.alpha
 
-            val inputBgColLabel = WDynamicColourLabel("Background Colour") {
+            val inputBgColLabel = WColourLabel("Background Colour") {
                 SimpleColour.packedFromHex(inputBackgroundColHex.text)?.packedRgb ?: 0x000000
             }
 
@@ -48,10 +45,10 @@ class TabDesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridP
             inputOutlineColHex = WTextField()
             inputOutlineColHex.text = outlineColour.asHexString()
 
-            outlineTransparencySlider = WLabeledSlider(0, 255, Axis.HORIZONTAL, Text.of("Outline Transparency"))
+            outlineTransparencySlider = WLabeledSlider(0, 255, Axis.HORIZONTAL, LiteralText("Outline Transparency"))
             outlineTransparencySlider.value = outlineColour.alpha
 
-            val inputOutlineColLabel = WDynamicColourLabel("Outline Colour") {
+            val inputOutlineColLabel = WColourLabel("Outline Colour") {
                 SimpleColour.packedFromHex(inputOutlineColHex.text)?.packedRgb ?: 0x000000
             }
 
@@ -62,10 +59,10 @@ class TabDesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridP
             inputTextColHex = WTextField()
             inputTextColHex.text = textColour.asHexString()
 
-            textTransparencySlider = WLabeledSlider(0, 255, Axis.HORIZONTAL, Text.of("Text Transparency"))
+            textTransparencySlider = WLabeledSlider(0, 255, Axis.HORIZONTAL, LiteralText("Text Transparency"))
             textTransparencySlider.value = textColour.alpha
 
-            val inputTextColLabel = WDynamicColourLabel("Text Colour") {
+            val inputTextColLabel = WColourLabel("Text Colour") {
                 SimpleColour.packedFromHex(inputTextColHex.text)?.packedRgb ?: 0x000000
             }
 
@@ -75,20 +72,25 @@ class TabDesignPanel(width: Int, height: Int, private val tab: ChatTab) : WGridP
         }
     }
 
-    override fun onClose(): ActionResult {
+    override fun canSave(): Boolean {
+        println("DESIGN CAN SAVE?")
         val colBackground = SimpleColour.packedFromHex(inputBackgroundColHex.text)?.fade(bgTransparencySlider.value)
         val colOutline = SimpleColour.packedFromHex(inputOutlineColHex.text)?.fade(outlineTransparencySlider.value)
         val colText = SimpleColour.packedFromHex(inputTextColHex.text)?.fade(textTransparencySlider.value)
 
-        return if (colBackground != null && colOutline != null && colText != null) {
-            tab.theme.apply {
-                setBackgroundCol(colBackground)
-                setOutlineCol(colOutline)
-                setTextCol(colText)
-            }
-            ActionResult.PASS
-        } else {
-            ActionResult.FAIL
+        return colBackground != null && colOutline != null && colText != null
+    }
+
+    override fun save() {
+        println("DESIGN SAVE!")
+        val colBackground = SimpleColour.packedFromHex(inputBackgroundColHex.text)!!.fade(bgTransparencySlider.value)
+        val colOutline = SimpleColour.packedFromHex(inputOutlineColHex.text)!!.fade(outlineTransparencySlider.value)
+        val colText = SimpleColour.packedFromHex(inputTextColHex.text)!!.fade(textTransparencySlider.value)
+
+        tab.theme.apply {
+            setBackgroundCol(colBackground)
+            setOutlineCol(colOutline)
+            setTextCol(colText)
         }
     }
 }

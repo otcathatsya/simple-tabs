@@ -1,6 +1,6 @@
 package at.cath.simpletabs
 
-import at.cath.simpletabs.gui.settings.ApiConfigDesc
+import at.cath.simpletabs.gui.settings.ConfigDesc
 import at.cath.simpletabs.mixins.MixinHudAccessor
 import at.cath.simpletabs.tabs.TabMenu
 import io.github.cottonmc.cotton.gui.client.CottonClientScreen
@@ -14,7 +14,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.option.KeyBinding
+import net.minecraft.client.options.KeyBinding
 import net.minecraft.client.util.InputUtil
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -70,7 +70,7 @@ object TabsMod : ClientModInitializer {
         // open menu
         ClientTickEvents.END_CLIENT_TICK.register { client ->
             while (menuKeyBind.wasPressed()) {
-                client.setScreen(CottonClientScreen(ApiConfigDesc()))
+                client.currentScreen = CottonClientScreen(ConfigDesc())
             }
         }
 
