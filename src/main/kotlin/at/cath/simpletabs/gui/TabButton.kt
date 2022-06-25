@@ -5,6 +5,7 @@ import at.cath.simpletabs.mixins.MixinSuggestorState
 import at.cath.simpletabs.tabs.CONTROL_ELEMENT
 import at.cath.simpletabs.tabs.ChatTab
 import at.cath.simpletabs.utility.SimpleColour
+import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.text.Text
@@ -31,7 +32,6 @@ class TabButton(
     ), TabComponent {
 
 
-
     override fun renderButton(mouseX: Int, mouseY: Int, delta: Float) {
         val minecraftClient = MinecraftClient.getInstance()
         val screen = minecraftClient.currentScreen
@@ -54,21 +54,18 @@ class TabButton(
 
                         val startXScaled = startX / 0.5
                         val startYScaled = startY / 0.5
-                        /*
-                        matrices.push()
-                        matrices.scale(0.5f, 0.5f, 1.0f)
 
-                        DrawableHelper.drawCenteredText(
-                            matrices,
+                        RenderSystem.pushMatrix()
+                        RenderSystem.scaled(0.5, 0.5, 1.0)
+
+                        drawCenteredString(
                             textRenderer,
-                            Text.of("${tab.unreadCount}"),
+                            "${tab.unreadCount}",
                             startXScaled.toInt() + 6,
                             startYScaled.toInt() - 9,
                             SimpleColour.WHITE.packedRgb
                         )
-                        matrices.pop()
-
-                         */
+                        RenderSystem.popMatrix()
                     }
                 }
             }

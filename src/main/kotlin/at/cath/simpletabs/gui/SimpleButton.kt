@@ -21,17 +21,16 @@ open class SimpleButton(
     override fun renderButton(mouseX: Int, mouseY: Int, delta: Float) {
         val minecraftClient = MinecraftClient.getInstance()
         val textRenderer = minecraftClient.textRenderer
+
         fill(x, y, x + width, y + height, backgroundColour.packedRgb)
 
-        fill(x, y, x + width, y, outlineColour.packedRgb)
-        fill(x, y + height, x + width, y + height, outlineColour.packedRgb)
+        hLine(x, x + width, y, outlineColour.packedRgb)
+        hLine(x, x + width, y + height, outlineColour.packedRgb)
 
-        fill(x, y, x, y + height, outlineColour.packedRgb)
-        fill(x + width, y, x + width, y + height, outlineColour.packedRgb)
+        vLine(x, y, y + height, outlineColour.packedRgb)
+        vLine(x + width, y, y + height, outlineColour.packedRgb)
 
-        textRenderer.drawWithShadow(
-            message, (x + width / 2).toFloat(), (y + (height - 6) / 2).toFloat(), textColour.packedRgb
-        )
+        drawCenteredString(textRenderer, message, (x + width / 2), (y + (height - 6) / 2), textColour.packedRgb)
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {

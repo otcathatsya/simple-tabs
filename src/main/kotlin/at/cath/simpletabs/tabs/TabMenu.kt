@@ -1,7 +1,6 @@
 package at.cath.simpletabs.tabs
 
 import at.cath.simpletabs.TabsMod
-import at.cath.simpletabs.gui.TabScreen
 import at.cath.simpletabs.mixins.MixinHudUtility
 import at.cath.simpletabs.translate.RetrofitDeepl
 import kotlinx.coroutines.CoroutineScope
@@ -20,7 +19,6 @@ import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
 import net.minecraft.util.math.MathHelper
-import java.util.*
 import kotlin.math.min
 
 
@@ -126,7 +124,6 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
 
                     val chatWidth = MathHelper.floor(this@TabMenu.width.toDouble() / this@TabMenu.chatScale)
 
-                    // TODO: IDK
                     val lineBreakTranslation = Texts.wrapLines(
                         formattedTranslation,
                         chatWidth,
@@ -288,20 +285,20 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
     }
 
     private fun getLocalChatIndicesAt(x: Double, y: Double): Pair<Int, Int>? {
-        return if (client.currentScreen is TabScreen && !this.client.options.hudHidden && client.options.chatVisibility != ChatVisibility.HIDDEN) {
-            var d = x - 2.0
-            var e = this.client.window.scaledHeight.toDouble() - y - 40.0
-            d = MathHelper.floor(d / this.chatScale).toDouble()
-            // TODO: FIX SPACING 3 = chatLineSpacing
-            e = MathHelper.floor(e / (this.chatScale * (3 + 1.0))).toDouble()
-            if (d >= 0.0 && e >= 0.0) {
-                val i = this.visibleLineCount.coerceAtMost(visibleMessages.size)
-                if (d <= MathHelper.floor(this.width.toDouble() / this.chatScale).toDouble()) {
-                    Objects.requireNonNull(this.client.textRenderer)
-                    if (e < (9 * i + i).toDouble()) {
-                        Objects.requireNonNull(this.client.textRenderer)
-                        var indexVisibleMsg = (e / 9.0 + (this as MixinHudUtility).scrolledLines.toDouble()).toInt()
-                        if (indexVisibleMsg >= 0 && indexVisibleMsg < visibleMessages.size) {
+        if (this.isChatFocused && !this.client.options.hudHidden && client.options.chatVisibility != ChatVisibility.HIDDEN) {
+            val d = this.chatScale
+            var e = x - 2.0
+            var f = this.client.window.scaledHeight.toDouble() - y - 40.0
+            e = MathHelper.floor(e / d).toDouble()
+            f = MathHelper.floor(f / d).toDouble()
+            if (e >= 0.0 && f >= 0.0) {
+                val i = this.visibleLineCount.coerceAtMost(this.visibleMessages.size)
+                if (e <= MathHelper.floor(this.width.toDouble() / this.chatScale).toDouble()) {
+                    this.client.textRenderer.javaClass
+                    if (f < (9 * i + i).toDouble()) {
+                        this.client.textRenderer.javaClass
+                        var indexVisibleMsg = (f / 9.0 + (this as MixinHudUtility).scrolledLines.toDouble()).toInt()
+                        if (indexVisibleMsg >= 0 && indexVisibleMsg < this.visibleMessages.size) {
                             var sumVisibleMsgs = 0
                             var countWholeMsgs = 0
 
@@ -323,15 +320,13 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
                         }
                     }
                 }
-                null
-            } else {
-                null
             }
-        } else {
-            null
         }
+        return null
     }
+
 
     private fun countRenderedMessageSplits(text: Text): Int =
         client.textRenderer.wrapStringToWidthAsList(text.string, width).size
+
 }
