@@ -70,7 +70,7 @@ object TabsMod : ClientModInitializer {
         // open menu
         ClientTickEvents.END_CLIENT_TICK.register { client ->
             while (menuKeyBind.wasPressed()) {
-                client.currentScreen = CottonClientScreen(ConfigDesc())
+                client.openScreen(CottonClientScreen(ConfigDesc()))
             }
         }
 
