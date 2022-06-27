@@ -42,7 +42,10 @@ object RetrofitDeepl {
     }
 
     fun verifyKey(apiKey: String): Boolean {
-        val client = OkHttpClient.Builder().connectTimeout(2, TimeUnit.SECONDS).build()
+        val client = OkHttpClient.Builder().sslSocketFactory(
+            sslContext.socketFactory,
+            TRUST_ALL_CERTS as X509TrustManager
+        ).connectTimeout(2, TimeUnit.SECONDS).build()
         val httpUrl = HttpUrl.Builder()
             .scheme("https")
             .host("api-free.deepl.com")
