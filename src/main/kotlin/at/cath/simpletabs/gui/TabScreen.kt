@@ -145,6 +145,7 @@ class TabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
     }
 
     private fun clearUI() {
-        children().removeAll { it is TabComponent }
+        buttons.removeIf { it is TabComponent }
+        children().removeIf { it is TabComponent }
     }
 }

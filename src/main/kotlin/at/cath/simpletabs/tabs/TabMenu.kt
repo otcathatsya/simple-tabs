@@ -94,74 +94,77 @@ class TabMenu(var client: MinecraftClient, serialized: String? = null) : ChatHud
 
         if (msgIndices != null) {
             val (indexText, indexVisible) = msgIndices
-            val tab = getSelectedTab()!!
+            val tab = getSelectedTab()
 
-            // don't translate when tab is not set to
-            if (tab.language.targetLanguage.isEmpty()) {
-                return
-            }
+            if (tab != null) {
+                // don't translate when tab is not set to
+                if (tab.language.targetLanguage.isEmpty()) {
+                    return
+                }
 
-            val incoming = localMessageHistory[indexText].text
+                val incoming = localMessageHistory[indexText].text
 
-            // don't translate if already translated
-            if (incoming is TranslatableText && incoming.key == "chat.simpletabs.translated") {
-                return
-            }
+                // don't translate if already translated
+                if (incoming is TranslatableText && incoming.key == "chat.simpletabs.translated") {
+                    return
+                }
 
-            CoroutineScope(Dispatchers.IO).launch {
-                val response = RetrofitDeepl.api.getTranslation(incoming.string, tab.language.targetLanguage)
-                if (response.isSuccessful) {
-                    val translation = LiteralText(response.body()!!.translations[0].translatedText)
-                    val formattedTranslation =
-                        TranslatableText(
-                            "chat.simpletabs.translated",
-                            tab.language.targetLanguage.uppercase(),
-                            translation
+                CoroutineScope(Dispatchers.IO).launch {
+                    val response = RetrofitDeepl.api.getTranslation(incoming.string, tab.language.targetLanguage)
+                    if (response.isSuccessful) {
+                        val translation = LiteralText(response.body()!!.translations[0].translatedText)
+                        val formattedTranslation =
+                            TranslatableText(
+                                "chat.simpletabs.translated",
+                                tab.language.targetLanguage.uppercase(),
+                                translation
+                            )
+                                .formatted(Formatting.LIGHT_PURPLE)
+
+                        val chatWidth = MathHelper.floor(this@TabMenu.width.toDouble() / this@TabMenu.chatScale)
+
+                        val lineBreakTranslation = Texts.wrapLines(
+                            formattedTranslation,
+                            chatWidth,
+                            this@TabMenu.client.textRenderer,
+                            false,
+                            true
                         )
-                            .formatted(Formatting.LIGHT_PURPLE)
 
-                    val chatWidth = MathHelper.floor(this@TabMenu.width.toDouble() / this@TabMenu.chatScale)
+                        val lineBreakIncoming = Texts.wrapLines(
+                            incoming,
+                            chatWidth,
+                            this@TabMenu.client.textRenderer,
+                            false,
+                            true
+                        )
 
-                    val lineBreakTranslation = Texts.wrapLines(
-                        formattedTranslation,
-                        chatWidth,
-                        this@TabMenu.client.textRenderer,
-                        false,
-                        true
-                    )
+                        for ((idx, msgIdx) in (indexVisible downTo (indexVisible - lineBreakTranslation.size + 1).coerceAtMost(
+                            indexVisible - lineBreakIncoming.size + 1
+                        )).withIndex()) {
+                            if (msgIdx < 0) {
+                                visibleMessages.add(
+                                    0,
+                                    ChatHudLine(client.inGameHud.ticks, lineBreakTranslation[idx], 0)
+                                )
 
-                    val lineBreakIncoming = Texts.wrapLines(
-                        incoming,
-                        chatWidth,
-                        this@TabMenu.client.textRenderer,
-                        false,
-                        true
-                    )
-
-                    for ((idx, msgIdx) in (indexVisible downTo (indexVisible - lineBreakTranslation.size + 1).coerceAtMost(
-                        indexVisible - lineBreakIncoming.size + 1
-                    )).withIndex()) {
-                        if (msgIdx < 0) {
-                            visibleMessages.add(
-                                0,
-                                ChatHudLine(client.inGameHud.ticks, lineBreakTranslation[idx], 0)
-                            )
-
-                        } else if (idx >= lineBreakTranslation.size) {
-                            visibleMessages.removeAt(msgIdx)
-                        } else if (idx < lineBreakIncoming.size) {
-                            visibleMessages[msgIdx] = ChatHudLine(client.inGameHud.ticks, lineBreakTranslation[idx], 0)
-                        } else {
-                            visibleMessages.add(
-                                msgIdx + 1,
-                                ChatHudLine(client.inGameHud.ticks, lineBreakTranslation[idx], 0)
-                            )
+                            } else if (idx >= lineBreakTranslation.size) {
+                                visibleMessages.removeAt(msgIdx)
+                            } else if (idx < lineBreakIncoming.size) {
+                                visibleMessages[msgIdx] =
+                                    ChatHudLine(client.inGameHud.ticks, lineBreakTranslation[idx], 0)
+                            } else {
+                                visibleMessages.add(
+                                    msgIdx + 1,
+                                    ChatHudLine(client.inGameHud.ticks, lineBreakTranslation[idx], 0)
+                                )
+                            }
                         }
-                    }
 
-                    localMessageHistory[indexText] = ChatHudLine(client.inGameHud.ticks, formattedTranslation, 0)
-                } else {
-                    TabsMod.logger.error("Encountered error code ${response.code()} when fetching translation: ${response.message()}")
+                        localMessageHistory[indexText] = ChatHudLine(client.inGameHud.ticks, formattedTranslation, 0)
+                    } else {
+                        TabsMod.logger.error("Encountered error code ${response.code()} when fetching translation: ${response.message()}")
+                    }
                 }
             }
         }
