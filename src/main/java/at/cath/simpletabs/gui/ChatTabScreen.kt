@@ -35,7 +35,8 @@ class ChatTabScreen(originalChatText: String?) : ChatScreen(originalChatText) {
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         if (MouseAction.create(button) == MouseAction.RIGHT_CLICK) {
-            tabMenu.handleClickTranslation(mouseX, mouseY)
+            // TODO: port
+            //tabMenu.handleClickTranslation(mouseX, mouseY)
         }
         return super.mouseClicked(mouseX, mouseY, button)
     }

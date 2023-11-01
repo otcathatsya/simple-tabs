@@ -69,12 +69,3 @@ tasks {
         withSourcesJar()
     }
 }
-
-sourceSets {
-    main {
-        java {
-            srcDir("src/main/kotlin")
-            srcDir("src/main/java")
-        }
-    }
-}

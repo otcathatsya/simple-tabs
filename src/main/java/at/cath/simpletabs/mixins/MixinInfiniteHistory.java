@@ -7,7 +7,8 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 @Mixin(ChatHud.class)
 public class MixinInfiniteHistory {
-    @ModifyConstant(method = "addMessage(Lnet/minecraft/text/Text;IIZ)V", constant = @Constant(intValue = 100), expect = 2)
+    // todo: make work
+    @ModifyConstant(method = "addMessage(Lnet/minecraft/text/Text;)V", constant = @Constant(intValue = 100), expect = 2)
     public int expandChatHistory(int original) {
         return Integer.MAX_VALUE;
     }

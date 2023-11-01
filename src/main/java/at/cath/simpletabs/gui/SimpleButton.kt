@@ -2,10 +2,9 @@ package at.cath.simpletabs.gui
 
 import at.cath.simpletabs.utility.SimpleColour
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gui.DrawableHelper
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.gui.widget.ButtonWidget.PressAction
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 
 open class SimpleButton(
@@ -18,21 +17,22 @@ open class SimpleButton(
     private val outlineColour: SimpleColour,
     private val textColour: SimpleColour,
     private val clickCallback: MouseActionCallback = object : MouseActionCallback {}
-) : ButtonWidget(x, y, width, height, message, PressAction { }) {
+) : ButtonWidget(x, y, width, height, message, PressAction { }, null) {
 
-    override fun renderButton(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+    override fun renderButton(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         val minecraftClient = MinecraftClient.getInstance()
         val textRenderer = minecraftClient.textRenderer
-        DrawableHelper.fill(matrices, x, y, x + width, y + height, backgroundColour.packedRgb)
 
-        drawHorizontalLine(matrices, x, x + width, y, outlineColour.packedRgb)
-        drawHorizontalLine(matrices, x, x + width, y + height, outlineColour.packedRgb)
+        context.fill(x, y, x + width, y + height, backgroundColour.packedRgb)
 
-        drawVerticalLine(matrices, x, y, y + height, outlineColour.packedRgb)
-        drawVerticalLine(matrices, x + width, y, y + height, outlineColour.packedRgb)
+        context.drawHorizontalLine(x, x + width, y, outlineColour.packedRgb)
+        context.drawHorizontalLine(x, x + width, y + height, outlineColour.packedRgb)
 
-        drawCenteredText(
-            matrices, textRenderer,
+        context.drawVerticalLine(x, y, y + height, outlineColour.packedRgb)
+        context.drawVerticalLine(x + width, y, y + height, outlineColour.packedRgb)
+
+        context.drawCenteredTextWithShadow(
+            textRenderer,
             message, x + width / 2, y + (height - 6) / 2, textColour.packedRgb
         )
     }
