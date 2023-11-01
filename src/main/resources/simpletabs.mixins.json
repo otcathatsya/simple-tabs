@@ -8,6 +8,7 @@
     "MixinHudAccessor",
     "MixinHudUtility",
     "MixinScreenInjector",
+    "MixinSuggestorAccessor",
     "MixinSuggestorState"
   ],
   "server": [],

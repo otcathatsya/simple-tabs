@@ -1,5 +1,6 @@
 package at.cath.simpletabs.gui
 
+import at.cath.simpletabs.mixins.MixinSuggestorAccessor
 import at.cath.simpletabs.tabs.CONTROL_ELEMENT
 import at.cath.simpletabs.tabs.ChatTab
 import at.cath.simpletabs.utility.SimpleColour
@@ -34,39 +35,39 @@ class TabButton(
         val minecraftClient = MinecraftClient.getInstance()
         val screen = minecraftClient.currentScreen
         if (screen is ChatScreen) {
-            //   if (((screen as MixinSuggestorAccessor).chatInputSuggestor as MixinSuggestorState).suggestionWindow == null) {
-            super.renderButton(context, mouseX, mouseY, delta)
-            val textRenderer = minecraftClient.textRenderer
-            if (tab != null) {
-                if (tab.unreadCount > 0) {
-                    val startX = x + width - 4
-                    val startY = y + 4
+            if (!(screen as MixinSuggestorAccessor).chatInputSuggestor.isOpen) {
+                super.renderButton(context, mouseX, mouseY, delta)
+                val textRenderer = minecraftClient.textRenderer
+                if (tab != null) {
+                    if (tab.unreadCount > 0) {
+                        val startX = x + width - 4
+                        val startY = y + 4
 
-                    context.fill(
-                        startX,
-                        startY,
-                        startX + 6,
-                        startY - 6,
-                        SimpleColour.RED.packedRgb
-                    )
+                        context.fill(
+                            startX,
+                            startY,
+                            startX + 6,
+                            startY - 6,
+                            SimpleColour.RED.packedRgb
+                        )
 
-                    val startXScaled = startX / 0.5
-                    val startYScaled = startY / 0.5
-                    val matrixStack = context.matrices
-                    matrixStack.push()
-                    matrixStack.scale(0.5f, 0.5f, 1.0f)
+                        val startXScaled = startX / 0.5
+                        val startYScaled = startY / 0.5
+                        val matrixStack = context.matrices
+                        matrixStack.push()
+                        matrixStack.scale(0.5f, 0.5f, 1.0f)
 
-                    context.drawCenteredTextWithShadow(
-                        textRenderer,
-                        Text.of("${tab.unreadCount}"),
-                        startXScaled.toInt() + 6,
-                        startYScaled.toInt() - 9,
-                        SimpleColour.WHITE.packedRgb
-                    )
-                    matrixStack.pop()
+                        context.drawCenteredTextWithShadow(
+                            textRenderer,
+                            Text.of("${tab.unreadCount}"),
+                            startXScaled.toInt() + 6,
+                            startYScaled.toInt() - 9,
+                            SimpleColour.WHITE.packedRgb
+                        )
+                        matrixStack.pop()
+                    }
                 }
             }
-            // }
         }
     }
 }
